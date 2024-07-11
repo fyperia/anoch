@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ class.name }}</title>
+</head>
+<body>
+<h1>{{ class.name }}</h1>
+<p>{{ class.description }}</p>
+<p>Body points: {{ class.body_points }}</p>
+    <menu>
+        {%  for s in class.skills.all %}
+            <li>
+                <a href="/db/skill/{{ s.id }}">{{ s.name }}</a>
+                <ul>
+                    <li>{{ s.description }}</li>
+                    <li>Type:
+                        {% for t in s.types.all %}
+                            [{{ t }}]
+                        {% endfor %}
+                    </li>
+                </ul>
+            </li>
+        {% endfor %}
+    </menu>
+</body>
+</html>

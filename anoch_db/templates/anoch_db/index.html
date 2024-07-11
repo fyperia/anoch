@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Anoch DB</title>
+</head>
+<body>
+    <menu>
+        {%  for c in class_list %}
+            <li><a href="/db/class/{{ c.id }}">{{ c.name }}</a></li>
+        {% endfor %}
+    </menu>
+</body>
+</html>

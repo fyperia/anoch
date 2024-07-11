@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ skill.name }}</title>
+</head>
+<body>
+    <h1>{{ skill.name }}</h1>
+    <p>Build cost: {{ skill.cost }}</p>
+    <p>{{ skill.description }}</p>
+    <p>
+        Type:
+        {% for t in skill.types.all %}
+            [{{ t }}]
+        {% endfor %}
+    </p>
+        Available from:
+    <ul>
+        {% for c in skill.classes.all %}
+        <li><a href="/db/class/{{ c.id }}">{{ c.name }}</a></li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
