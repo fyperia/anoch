@@ -5,6 +5,7 @@
     <title>{{ skill.name }}</title>
 </head>
 <body>
+    {% include "header.html" %}
     <h1>{{ skill.name }}</h1>
     <p>Build cost: {{ skill.cost }}</p>
     <p>{{ skill.description }}</p>
@@ -17,7 +18,7 @@
         Available from:
     <ul>
         {% for c in skill.classes.all %}
-        <li><a href="/db/class/{{ c.id }}">{{ c.name }}</a></li>
+        <li><a href="{% url 'db:classes' c.id %}">{{ c.name }}</a></li>
         {% endfor %}
     </ul>
 </body>

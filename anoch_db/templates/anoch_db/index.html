@@ -5,9 +5,10 @@
     <title>Anoch DB</title>
 </head>
 <body>
+    {% include "header.html" %}
     <menu>
         {%  for c in class_list %}
-            <li><a href="/db/class/{{ c.id }}">{{ c.name }}</a></li>
+            <li><a href="{% url 'db:classes' c.id %}">{{ c.name }}</a></li>
         {% endfor %}
     </menu>
 </body>
