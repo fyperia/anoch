@@ -35,6 +35,9 @@ class CharacterClass(models.Model):
     body_points = models.IntegerField(default=0)
     skills = models.ManyToManyField(Skill, related_name='classes')
 
+    class Meta:
+        verbose_name_plural = 'Character classes'
+
     def __str__(self):
         return self.name
 

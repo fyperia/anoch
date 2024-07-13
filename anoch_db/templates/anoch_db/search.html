@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search</title>
+</head>
+<body>
+    <ul>
+        {% for skill in object_list %}
+            <li>
+                {{ skill.name }}: {{ skill.description }}
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

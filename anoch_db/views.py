@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404, render
-from django.http import Http404, HttpResponse
+from django.views.generic import TemplateView, ListView, DetailView
+from django.db.models import Q
 
 from anoch_db.models import Skill, CharacterClass
 
@@ -21,3 +22,14 @@ def skill(request, skill_id):
 def character_class(request, class_id):
     c = get_object_or_404(CharacterClass, pk=class_id)
     return render(request, 'anoch_db/class.html', {'class': c})
+
+
+class SearchResultsView(ListView):
+    model = Skill
+    template_name = 'anoch_db/search.html'
+
+    def get_queryset(self):
+        query = self.request.GET.get('q')
+        return Skill.objects.filter(
+            Q(name__icontains=query) | Q(description__icontains=query)
+        )
