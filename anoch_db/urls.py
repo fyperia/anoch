@@ -11,6 +11,8 @@ urlpatterns = [
     path("skills/<int:skill_id>/", views.skill, name="skills"),
     # .../db/classes/1
     path("classes/<int:class_id>/", views.character_class, name="classes"),
-    # .../db/search/
-    path("search/", SearchResultsView.as_view(), name="search"),
+    # .../db/search/adv/
+    path("search/adv/", views.search_advanced, name="search_adv"),
+    # .../db/search/results/
+    path("search/", SearchResultsView.as_view(), name="search_results"),
 ]

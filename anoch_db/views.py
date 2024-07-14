@@ -3,6 +3,7 @@ from django.views.generic import TemplateView, ListView, DetailView
 from django.db.models import Q
 
 from anoch_db.models import Skill, CharacterClass
+from .forms import SearchBar
 
 
 # Create your views here.
@@ -24,9 +25,14 @@ def character_class(request, class_id):
     return render(request, 'anoch_db/class.html', {'class': c})
 
 
+def search_advanced(request):
+    form = SearchBar()
+    return render(request, 'anoch_db/search_adv.html', {'form': form})
+
+
 class SearchResultsView(ListView):
     model = Skill
-    template_name = 'anoch_db/search.html'
+    template_name = 'anoch_db/search_results.html'
 
     def get_queryset(self):
         query = self.request.GET.get('q')

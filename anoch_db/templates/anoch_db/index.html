@@ -6,9 +6,6 @@
 </head>
 <body>
     {% include "header.html" %}
-    <form action="{% url 'db:search' %}" method = "get">
-        <input name="q" type ="text" placeholder="Search Skills...">
-    </form>
     <menu>
         {%  for c in class_list %}
             <li><a href="{% url 'db:classes' c.id %}">{{ c.name }}</a></li>
