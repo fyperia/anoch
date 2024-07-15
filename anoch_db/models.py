@@ -45,8 +45,7 @@ class CharacterClass(models.Model):
     name = models.CharField(max_length=50)
     description = models.TextField(null=True)
     body_points = models.IntegerField(default=0)
-    # skill_list = models.ManyToManyField(Skill, related_name='character_classes')
-    skills = models.ManyToManyField(Skill, through='SkillAlias', related_name='classes')
+    skill_list = models.ManyToManyField(Skill, related_name='character_classes', through='SkillAlias')
 
     class Meta:
         verbose_name_plural = 'character Classes'
@@ -65,7 +64,10 @@ class SkillAlias(models.Model):
         verbose_name_plural = 'skill Aliases'
 
     def __str__(self):
-        return self.alias_name
+        if self.alias_name is not None:
+            return f'{self.skill.name} ({self.alias_name})'
+        else:
+            return self.skill.name
 
 
 class PlayerCharacterCard(models.Model):

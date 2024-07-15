@@ -1,4 +1,7 @@
 from django import forms
+from django.contrib.admin.widgets import FilteredSelectMultiple
+
+from .models import *
 
 
 class SearchBar(forms.Form):
@@ -14,3 +17,12 @@ class SearchBar(forms.Form):
     search_type = forms.ChoiceField(
         label="Search in:", choices=SEARCH_CHOICES, widget=forms.RadioSelect
     )
+
+
+class SkillList(forms.ModelForm):
+    class Meta:
+        model = CharacterClass
+        fields = ['name', 'body_points', 'description', 'skill_list']
+        widgets = {
+            'skill_list': FilteredSelectMultiple(verbose_name='Skills', is_stacked=False)
+        }
