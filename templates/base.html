@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Knight Realms{% endblock %}</title>
+    <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.png' %}" >
+</head>
+<body>
+{% include "header.html" %}
+{% block content %}{% endblock content %}
+</body>
+</html>

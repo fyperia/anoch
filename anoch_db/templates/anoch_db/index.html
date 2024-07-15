@@ -1,15 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Anoch DB</title>
-</head>
-<body>
-    {% include "header.html" %}
+{% extends "base.html" %}
+
+{% block title %}Knight Realms: Anoch DB{% endblock %}
+
+{% block content %}
     <menu>
         {%  for c in class_list %}
             <li><a href="{% url 'db:classes' c.id %}">{{ c.name }}</a></li>
         {% endfor %}
     </menu>
-</body>
-</html>
+{% endblock %}
