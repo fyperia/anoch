@@ -1,3 +1,4 @@
+from django import forms
 from django.db import models
 
 # Create your models here.
@@ -20,10 +21,21 @@ class Type(models.Model):
 
 
 class Skill(models.Model):
+    CATEGORY_CHOICES = [
+        ("P", "Periodic"),
+        ("C", "Passive/Prof"),
+        ("S", "Spell"),
+        ("T", "Talent"),
+        ("E", "Exalted"),
+        ("R", "Ritual"),
+    ]
+
     name = models.CharField(max_length=50)
     description = models.TextField()
+    mechanics = models.TextField()
     cost = models.IntegerField()
     types = models.ManyToManyField(Type, related_name='skills')
+    category = models.CharField(max_length=1, choices=CATEGORY_CHOICES, default='P')
 
     def __str__(self):
         return self.name
@@ -33,13 +45,27 @@ class CharacterClass(models.Model):
     name = models.CharField(max_length=50)
     description = models.TextField(null=True)
     body_points = models.IntegerField(default=0)
-    skills = models.ManyToManyField(Skill, related_name='classes')
+    # skill_list = models.ManyToManyField(Skill, related_name='character_classes')
+    skills = models.ManyToManyField(Skill, through='SkillAlias', related_name='classes')
 
     class Meta:
-        verbose_name_plural = 'Character classes'
+        verbose_name_plural = 'character Classes'
 
     def __str__(self):
         return self.name
+
+
+class SkillAlias(models.Model):
+    character_class = models.ForeignKey(CharacterClass, on_delete=models.CASCADE)
+    skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
+    alias_name = models.CharField(max_length=50, null=True)
+    alias_description = models.TextField(null=True)
+
+    class Meta:
+        verbose_name_plural = 'skill Aliases'
+
+    def __str__(self):
+        return self.alias_name
 
 
 class PlayerCharacterCard(models.Model):
