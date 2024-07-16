@@ -1,22 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ class.name }}</title>
-</head>
-<body>
-    {% include "header.html" %}
+{% extends "base.html" %}
+
+{% block title %}{{ class.name }} - Knight Realms: Anoch DB{% endblock %}
+
+{% block content %}
     <h1>{{ class.name }}</h1>
     <p>{{ class.description }}</p>
     <p>Body points: {{ class.body_points }}</p>
         <menu>
-            {%  for s in class.skills.all %}
+            {%  for key, value in skill_dict.items %}
                 <li>
-                    <a href="{% url 'db:skills' s.id %}">{{ s.name }}</a>
+                    <a href="{% url 'db:skills' key.id %}">{{ value }}</a>
                     <ul>
-                        <li>{{ s.description }}</li>
+                        <li>{{ key.description }} {{ key.mechanics }}</li>
                         <li>Type:
-                            {% for t in s.types.all %}
+                            {% for t in key.types.all %}
                                 [{{ t }}]
                             {% endfor %}
                         </li>
@@ -24,5 +21,4 @@
                 </li>
             {% endfor %}
         </menu>
-</body>
-</html>
+{% endblock %}

@@ -1,14 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ skill.name }}</title>
-</head>
-<body>
-    {% include "header.html" %}
+{% extends "base.html" %}
+
+{% block title %}{{ skill.name }} - Knight Realms: Anoch DB{% endblock %}
+
+{% block content %}
     <h1>{{ skill.name }}</h1>
     <p>Build cost: {{ skill.cost }}</p>
-    <p>{{ skill.description }}</p>
+    <p>{{ skill.description }} {{ skill.mechanics }}</p>
     <p>
         Type:
         {% for t in skill.types.all %}
@@ -17,9 +14,8 @@
     </p>
         Available from:
     <ul>
-        {% for c in skill.classes.all %}
+        {% for c in skill.character_classes.all %}
         <li><a href="{% url 'db:classes' c.id %}">{{ c.name }}</a></li>
         {% endfor %}
     </ul>
-</body>
-</html>
+{% endblock %}

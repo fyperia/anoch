@@ -22,7 +22,14 @@ def skill(request, skill_id):
 
 def character_class(request, class_id):
     c = get_object_or_404(CharacterClass, pk=class_id)
-    return render(request, 'anoch_db/class.html', {'class': c})
+    sl = c.skill_list
+    al = sl.through.objects.all()
+    aliases = dict(zip(sl.all(), al))
+    context = {
+        'class': c,
+        'skill_dict': aliases
+    }
+    return render(request, 'anoch_db/class.html', context)
 
 
 def search_advanced(request):

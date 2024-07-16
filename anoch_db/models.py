@@ -57,15 +57,15 @@ class CharacterClass(models.Model):
 class SkillAlias(models.Model):
     character_class = models.ForeignKey(CharacterClass, on_delete=models.CASCADE)
     skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
-    alias_name = models.CharField(max_length=50, null=True)
-    alias_description = models.TextField(null=True)
+    alias_name = models.CharField(max_length=50, null=True, blank=True)
+    alias_description = models.TextField(null=True, blank=True)
 
     class Meta:
         verbose_name_plural = 'skill Aliases'
 
     def __str__(self):
         if self.alias_name is not None:
-            return f'{self.skill.name} ({self.alias_name})'
+            return self.alias_name
         else:
             return self.skill.name
 
