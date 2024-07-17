@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'anoch_db.apps.AnochDbConfig',
+    'polymorphic',
 ]
 
 MIDDLEWARE = [

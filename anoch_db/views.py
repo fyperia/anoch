@@ -22,7 +22,7 @@ def skill(request, skill_id):
 
 def character_class(request, class_id):
     c = get_object_or_404(CharacterClass, pk=class_id)
-    sl = c.skill_list
+    sl = c.skills
     al = sl.through.objects.all()
     aliases = dict(zip(sl.all(), al))
     context = {

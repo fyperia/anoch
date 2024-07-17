@@ -7,11 +7,11 @@ from django.db import models
 from django.utils.text import format_lazy
 
 from .forms import SkillList
-from .models import Type, Skill, CharacterClass, SkillAlias
+from .models import Type, Skill, CharacterClass, ClassSkills
 
 
 class SkillAliasInline(admin.TabularInline):
-    model = SkillAlias
+    model = ClassSkills
     can_delete = False
     autocomplete_fields = ('skill',)
     extra = 0
@@ -28,7 +28,7 @@ class SkillAliasInline(admin.TabularInline):
     #     return db_field.formfield(**kwargs)
 
 
-@admin.register(SkillAlias)
+@admin.register(ClassSkills)
 class SkillAliasAdmin(admin.ModelAdmin):
     list_display = ('alias_name', 'skill', 'character_class')
     search_fields = ('skill', 'alias_name')
@@ -41,7 +41,7 @@ class SkillAliasAdmin(admin.ModelAdmin):
 
 @admin.register(Skill)
 class SkillAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category')
+    list_display = ('name',)
     search_fields = ('name',)
     autocomplete_fields = ('types',)
     fieldsets = [
