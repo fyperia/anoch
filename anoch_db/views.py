@@ -6,9 +6,6 @@ from anoch_db.models import Skill, CharacterClass
 from .forms import SearchBar
 
 
-# Create your views here.
-
-
 def index(request):
     class_list = CharacterClass.objects.order_by('name')
     context = {'class_list': class_list, }
