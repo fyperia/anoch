@@ -20,4 +20,5 @@ from django.urls import include, path
 urlpatterns = [
     path('db/', include('anoch_db.urls')),
     path('admin/', admin.site.urls),
+    path('prose/', include('prose.urls')),
 ]

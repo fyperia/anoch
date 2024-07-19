@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'anoch_db.apps.AnochDbConfig',
     'polymorphic',
+    'prose',
 ]
 
 MIDDLEWARE = [

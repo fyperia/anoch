@@ -19,10 +19,10 @@ class SearchBar(forms.Form):
     )
 
 
-class SkillList(forms.ModelForm):
+class CharacterClassForm(forms.ModelForm):
     class Meta:
         model = CharacterClass
-        fields = ['name', 'body_points', 'description', 'skills']
+        fields = ['name', 'body_points', 'class_type', 'description', 'class_options_help', 'class_options', 'skills']
         widgets = {
             'skills': FilteredSelectMultiple(verbose_name='Skills', is_stacked=False)
         }

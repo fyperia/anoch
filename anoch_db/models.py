@@ -176,9 +176,11 @@ class CharacterClass(BasicEntryMixin):
     ]
     body_points = models.IntegerField(default=0)
     skills = models.ManyToManyField(Skill, related_name='character_classes', through='ClassSkills')
-    class_type = models.CharField(max_length=1, choices=CLASS_TYPES)
-    class_options = models.ManyToManyField(ClassOptions, related_name='character_classes')
-    class_options_help = models.TextField(help_text="A description of what the class options choices are for.")
+    class_type = models.CharField(max_length=1, choices=CLASS_TYPES, default='B')
+    class_options = models.ManyToManyField(ClassOptions, related_name='character_classes', blank=True)
+    class_options_help = models.CharField(max_length=50,
+                                          help_text="A description of what the class options are for. Blank if n/a.",
+                                          blank=True, null=True)
 
     class Meta:
         verbose_name = 'class'
@@ -256,3 +258,33 @@ class NPCCharacterCard(BasicEntryMixin):
     rp_notes = models.TextField(null=True, blank=True, help_text="Optional notes on how to roleplay this NPC")
     categories = models.ManyToManyField(NPCCategory, related_name='npc_cards')
 # </editor-fold>
+
+
+class ArticleBase(models.Model):
+    title = models.CharField(max_length=255)
+    slug = models.SlugField(unique=True)
+    body = models.TextField()
+    publish_datetime = models.DateTimeField()
+    status = models.CharField(max_length=10, choices=('Draft', 'Published'), default='Draft')
+
+    prepopulated_fields = {"slug": ("title",)}
+
+    class Meta:
+        abstract = True
+
+
+class ArticleTags(models.Model):
+    CATEGORY_CHOICES = [
+        ('D', 'Database'),
+        ('I', 'Info'),
+        ('B', 'Blog'),
+    ]
+    name = models.CharField(max_length=50, primary_key=True)
+    slug = models.SlugField(unique=True)
+    category = models.CharField(max_length=1, choices=CATEGORY_CHOICES)
+
+    prepopulated_fields = {"slug": ("name",)}
+
+
+# class RulesArticle(ArticleBase):
+#     pass
