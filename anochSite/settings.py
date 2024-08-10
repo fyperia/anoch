@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-
+import os.path
 from pathlib import Path
 import environ
 
@@ -42,9 +42,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'anoch_db.apps.AnochDbConfig',
     'polymorphic',
     'prose',
+    'admin_reorder',
+    'rules_db.apps.AnochDbConfig',
+    "character_db.apps.EodraDbConfig"
 ]
 
 MIDDLEWARE = [
@@ -55,6 +57,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'admin_reorder.middleware.ModelAdminReorder',
 ]
 
 ROOT_URLCONF = 'anochSite.urls'

@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 from polymorphic.models import PolymorphicModel
+from prose.fields import RichTextField
+from prose.models import AbstractDocument
 
 
 class User(AbstractBaseUser):
@@ -38,17 +40,29 @@ class BasicEntryMixin(models.Model):
         return self.name
 
 
+class Entry(PolymorphicModel, BasicEntryMixin):
+    pass
+
+
 # <editor-fold desc="Expand Skills">
 class Type(BasicEntryMixin):
     name = models.CharField(max_length=50, unique=True)
+
+    class Meta:
+        verbose_name = 'OPT_Skill Type'
+        verbose_name_plural = 'OPT_Skill Types'
 
 
 class SkillOptions(BasicEntryMixin):
     # For a skill that gives multiple options to the player, ie Acolyte, Favored Enemy
     name = models.CharField(max_length=50, unique=True)
 
+    class Meta:
+        verbose_name = 'OPT_Skill Option'
+        verbose_name_plural = 'OPT_Skill Options'
 
-class Skill(PolymorphicModel, BasicEntryMixin):
+
+class Skill(Entry):
     mechanics = models.TextField(help_text="The specific rules mechanics of the ability.")
     cost = models.IntegerField()
     types = models.ManyToManyField(Type, related_name='skills')
@@ -69,6 +83,10 @@ class PassiveSkill(Skill):
 
 class SkillDomain(BasicEntryMixin):
     name = models.CharField(max_length=50, unique=True)
+
+    class Meta:
+        verbose_name = 'OPT_Skill Domain'
+        verbose_name_plural = 'OPT_Skill Domains'
 
 
 class SlotSkill(Skill):
@@ -107,11 +125,17 @@ class SkillAlias(models.Model):
 
     class Meta:
         verbose_name_plural = 'skill Aliases'
+
+
+class Effect(Entry):
+    mechanics = models.TextField(help_text="The specific rules mechanics of the effect.")
+    duration = models.IntegerField(help_text="The standard duration of the effect in seconds. -1 for N/A or instant.",
+                                   default=-1)
 # </editor-fold>
 
 
 # <editor-fold desc="Expand Crafting/Rituals">
-class Component(BasicEntryMixin):
+class Component(Entry):
     COMPONENT_TYPES = [
         ('BU', 'Unrefined (Basic)'),
         ('BR', 'Refined (Basic)'),
@@ -132,7 +156,7 @@ class CraftableMixin(models.Model):
         abstract = True
 
 
-class GenericItem(PolymorphicModel, BasicEntryMixin):
+class GenericItem(Entry):
     mechanics = models.TextField(help_text="The specific rules mechanics of the item.")
 
     class Meta:
@@ -140,10 +164,13 @@ class GenericItem(PolymorphicModel, BasicEntryMixin):
 
 
 class EquipmentType(Type):
-    pass
+    class Meta:
+        verbose_name = "OPT_Equipment Type"
+        verbose_name_plural = "OPT_Equipment Types"
 
 
 class Material(GenericItem):
+    # Equipment materials with specific mechanics, ie granting a damage type or a periodic effect
     allowed_equipment = models.ManyToManyField(Type, related_name='materials_allowed')
     types = models.ManyToManyField(Type, related_name='materials_of_type')
 
@@ -164,8 +191,12 @@ class ClassOptions(BasicEntryMixin):
     # For classes that need a dropdown menu, ie picking a hybrid casting source or exalted subclass
     name = models.CharField(max_length=50, unique=True)
 
+    class Meta:
+        verbose_name = "OPT_Class Options"
+        verbose_name_plural = "OPT_Class Options"
 
-class CharacterClass(BasicEntryMixin):
+
+class CharacterClass(Entry):
     CLASS_TYPES = [
         ('B', 'Base Class'),
         ('M', 'Master Class'),
@@ -177,9 +208,11 @@ class CharacterClass(BasicEntryMixin):
     body_points = models.IntegerField(default=0)
     skills = models.ManyToManyField(Skill, related_name='character_classes', through='ClassSkills')
     class_type = models.CharField(max_length=1, choices=CLASS_TYPES, default='B')
-    class_options = models.ManyToManyField(ClassOptions, related_name='character_classes', blank=True)
+    class_options = models.ManyToManyField(ClassOptions, related_name='character_classes', blank=True,
+                                           help_text="Available class choices, i.e. casting source, subclass, etc.")
     class_options_help = models.CharField(max_length=50,
-                                          help_text="A description of what the class options are for. Blank if n/a.",
+                                          help_text="A description of what the class options are for. Blank if n/a."
+                                                    " Text is visible to players.",
                                           blank=True, null=True)
 
     class Meta:
@@ -210,12 +243,21 @@ class ClassSkills(models.Model):
 
 
 # <editor-fold desc="Expand PC Card">
-class Species(BasicEntryMixin):
-    name = models.CharField(max_length=50, unique=True)
+class Species(Entry):
+    # The category for the creature i.e. elf, human
+    species_name = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.species_name
+
+    class Meta:
+        verbose_name = 'OPT_Species'
+        verbose_name_plural = 'OPT_Species'
 
 
-class Race(BasicEntryMixin):
-    species = models.ForeignKey(Species, on_delete=models.CASCADE)
+class Race(Entry):
+    # The sub-race for the creature i.e. Selendrian elf, Kormyrian human
+    parent_species = models.ForeignKey(Species, on_delete=models.CASCADE)
 
 
 class PCCharacterCard(models.Model):
@@ -260,17 +302,9 @@ class NPCCharacterCard(BasicEntryMixin):
 # </editor-fold>
 
 
-class ArticleBase(models.Model):
-    title = models.CharField(max_length=255)
-    slug = models.SlugField(unique=True)
-    body = models.TextField()
-    publish_datetime = models.DateTimeField()
-    status = models.CharField(max_length=10, choices=('Draft', 'Published'), default='Draft')
-
-    prepopulated_fields = {"slug": ("title",)}
-
-    class Meta:
-        abstract = True
+# <editor-fold desc="Expand Articles">
+class ArticleContent(AbstractDocument):
+    pass
 
 
 class ArticleTags(models.Model):
@@ -286,5 +320,43 @@ class ArticleTags(models.Model):
     prepopulated_fields = {"slug": ("name",)}
 
 
-# class RulesArticle(ArticleBase):
-#     pass
+class ArticleBase(models.Model):
+    STATUS_CHOICES = [
+        ('D', 'Draft'),
+        ('P', 'Published'),
+    ]
+
+    title = models.CharField(max_length=255)
+    slug = models.SlugField(unique=True)
+    excerpt = RichTextField(null=True, blank=True)
+    body = models.OneToOneField(ArticleContent, on_delete=models.CASCADE)
+    publish_datetime = models.DateTimeField()
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='D')
+    tags = models.ManyToManyField(ArticleTags)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    prepopulated_fields = {"slug": ("title",)}
+
+    class Meta:
+        abstract = True
+
+
+class RulesChapter(models.Model):
+    chapter_number = models.IntegerField(primary_key=True)
+    name = models.CharField(max_length=255, help_text="Name of chapter - do not include the chapter number.")
+    introduction = models.OneToOneField(ArticleContent, on_delete=models.CASCADE,
+                                        help_text="Non-mechanical introduction of the chapter.")
+
+
+class RulesArticle(ArticleBase):
+    chapter = models.ForeignKey(RulesChapter, on_delete=models.CASCADE)
+    sort_order = models.IntegerField(help_text="Ascending order within chapter; same numbers will sort alphabetically.")
+# </editor-fold>
+
+
+class Comment(models.Model):
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    text = RichTextField()
+    date = models.DateTimeField(auto_now_add=True)
+    edit_date = models.DateTimeField(auto_now=True)
+    parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE)

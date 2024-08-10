@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404, render
 from django.views.generic import TemplateView, ListView, DetailView
 from django.db.models import Q
 
-from anoch_db.models import Skill, CharacterClass
+from rules_db.models import Skill, CharacterClass
 from .forms import SearchBar
 
 

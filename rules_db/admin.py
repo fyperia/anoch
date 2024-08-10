@@ -7,7 +7,11 @@ from django.db import models
 from django.utils.text import format_lazy
 
 from .forms import CharacterClassForm
-from .models import Type, Skill, CharacterClass, ClassSkills
+from .models import (Type, SkillDomain, ClassOptions, Effect,
+                     Skill, PeriodicSkill, PassiveSkill, SlotSkill, ExaltedSkill, PrestigePoint, UniqueMechanic,
+                     CharacterClass, ClassSkills,
+                     EquipmentType, Component, Material, Consumable, Ritual,
+                     Species, Race, NPCCategory)
 
 
 class SkillAliasInline(admin.TabularInline):
@@ -31,6 +35,7 @@ class SkillAliasInline(admin.TabularInline):
 @admin.register(ClassSkills)
 class ClassSkillsAdmin(admin.ModelAdmin):
     list_display = ('skill', 'character_class', 'alias')
+    list_select_related = ('character_class', 'alias')
     search_fields = ('skill', 'alias')
     autocomplete_fields = ('skill', 'character_class')
     fields = [('skill', 'character_class'), 'alias_name', 'alias_description']
@@ -79,4 +84,14 @@ class CharacterClassAdmin(admin.ModelAdmin):
 
 @admin.register(Type)
 class TypeAdmin(admin.ModelAdmin):
+    search_fields = ('name',)
+
+
+@admin.register(ClassOptions)
+class ClassOptionsAdmin(admin.ModelAdmin):
+    search_fields = ('name',)
+
+
+@admin.register(Species)
+class SpeciesAdmin(admin.ModelAdmin):
     search_fields = ('name',)

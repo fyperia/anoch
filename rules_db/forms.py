@@ -24,5 +24,6 @@ class CharacterClassForm(forms.ModelForm):
         model = CharacterClass
         fields = ['name', 'body_points', 'class_type', 'description', 'class_options_help', 'class_options', 'skills']
         widgets = {
-            'skills': FilteredSelectMultiple(verbose_name='Skills', is_stacked=False)
+            'skills': FilteredSelectMultiple(verbose_name='Skills', is_stacked=False),
+            'class_options': FilteredSelectMultiple(verbose_name='Class Options', is_stacked=False),
         }

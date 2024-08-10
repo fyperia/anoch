@@ -18,7 +18,11 @@ from django.contrib import admin
 from django.urls import include, path
 
 urlpatterns = [
-    path('db/', include('anoch_db.urls')),
+    path('db/', include('rules_db.urls')),
     path('admin/', admin.site.urls),
     path('prose/', include('prose.urls')),
 ]
+
+admin.site.site_header = 'Knight Realms - Anoch DB'
+admin.site.site_title = 'KR Anoch Admin Panel'
+admin.site.index_title = 'Admin Index'
