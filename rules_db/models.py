@@ -1,32 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser
 from polymorphic.models import PolymorphicModel
-from prose.fields import RichTextField
-from prose.models import AbstractDocument
-
-
-class User(AbstractBaseUser):
-    username = models.CharField(max_length=50, unique=True)
-    first_name = models.CharField(max_length=150)
-    last_name = models.CharField(max_length=150)
-    email = models.EmailField(unique=True)
-
-    USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['first_name', 'last_name', 'email']
-    EMAIL_FIELD = 'email'
-
-    def get_full_name(self):
-        return f"{self.first_name} {self.last_name}"
-
-    def get_short_name(self):
-        return self.first_name
-
-
-class Player(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-
-    def __str__(self):
-        return self.user.get_full_name
+from core.models import ArticleBase, ArticleContent
 
 
 class BasicEntryMixin(models.Model):
@@ -49,22 +23,22 @@ class Type(BasicEntryMixin):
     name = models.CharField(max_length=50, unique=True)
 
     class Meta:
-        verbose_name = 'OPT_Skill Type'
-        verbose_name_plural = 'OPT_Skill Types'
+        verbose_name = 'Skill Type'
+        verbose_name_plural = 'Skill Types'
 
 
 class SkillOptions(BasicEntryMixin):
-    # For a skill that gives multiple options to the player, ie Acolyte, Favored Enemy
+    # For a skill that gives multiple options to the player, ie Acolyte source, Favored Enemy type, Prestige Points
     name = models.CharField(max_length=50, unique=True)
 
     class Meta:
-        verbose_name = 'OPT_Skill Option'
-        verbose_name_plural = 'OPT_Skill Options'
+        verbose_name = 'Skill Option'
+        verbose_name_plural = 'Skill Options'
 
 
 class Skill(Entry):
     mechanics = models.TextField(help_text="The specific rules mechanics of the ability.")
-    cost = models.IntegerField()
+    cost = models.IntegerField(verbose_name='Build Cost')
     types = models.ManyToManyField(Type, related_name='skills')
 
 
@@ -85,8 +59,8 @@ class SkillDomain(BasicEntryMixin):
     name = models.CharField(max_length=50, unique=True)
 
     class Meta:
-        verbose_name = 'OPT_Skill Domain'
-        verbose_name_plural = 'OPT_Skill Domains'
+        verbose_name = 'Skill Domain'
+        verbose_name_plural = 'Skill Domains'
 
 
 class SlotSkill(Skill):
@@ -124,7 +98,7 @@ class SkillAlias(models.Model):
     alias_domain = models.ForeignKey(SkillDomain, on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
-        verbose_name_plural = 'skill Aliases'
+        verbose_name_plural = 'Skill Aliases'
 
 
 class Effect(Entry):
@@ -164,9 +138,17 @@ class GenericItem(Entry):
 
 
 class EquipmentType(Type):
+    CATEGORY_CHOICES = [
+        ('HW', 'Weapon'),
+        ('HS', 'Secondary'),
+        ('AC', 'Accessory'),
+        ('AR', 'Armor'),
+    ]
+    category = models.CharField(max_length=2, choices=CATEGORY_CHOICES)
+
     class Meta:
-        verbose_name = "OPT_Equipment Type"
-        verbose_name_plural = "OPT_Equipment Types"
+        verbose_name = "Equipment Type"
+        verbose_name_plural = "Equipment Types"
 
 
 class Material(GenericItem):
@@ -192,8 +174,8 @@ class ClassOptions(BasicEntryMixin):
     name = models.CharField(max_length=50, unique=True)
 
     class Meta:
-        verbose_name = "OPT_Class Options"
-        verbose_name_plural = "OPT_Class Options"
+        verbose_name = 'Class Option'
+        verbose_name_plural = 'Class Options'
 
 
 class CharacterClass(Entry):
@@ -226,119 +208,21 @@ class CharacterClass(Entry):
 class ClassSkills(models.Model):
     character_class = models.ForeignKey(CharacterClass, on_delete=models.CASCADE)
     skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
-    alias = models.OneToOneField(SkillAlias, on_delete=models.CASCADE, related_name='class_skill')
-    prerequisites = models.ForeignKey(ClassOptions, on_delete=models.CASCADE)
+    alias = models.OneToOneField(SkillAlias, on_delete=models.CASCADE, related_name='class_skill', blank=True, null=True)
+    prerequisites = models.ForeignKey(ClassOptions, on_delete=models.CASCADE, blank=True, null=True)
 
     class Meta:
         verbose_name = 'skill'
         verbose_name_plural = 'skill List'
-        unique_together = ('character_class', 'skill')
+        unique_together = ('character_class', 'skill', 'alias')
 
     def __str__(self):
-        if self.alias.alias_name is not None:
-            return self.alias.alias_name
+        if self.alias is not None:
+            if self.alias.alias_name is not None:
+                return self.alias.alias_name
         else:
             return self.skill.name
 # </editor-fold>
-
-
-# <editor-fold desc="Expand PC Card">
-class Species(Entry):
-    # The category for the creature i.e. elf, human
-    species_name = models.CharField(max_length=50, unique=True)
-
-    def __str__(self):
-        return self.species_name
-
-    class Meta:
-        verbose_name = 'OPT_Species'
-        verbose_name_plural = 'OPT_Species'
-
-
-class Race(Entry):
-    # The sub-race for the creature i.e. Selendrian elf, Kormyrian human
-    parent_species = models.ForeignKey(Species, on_delete=models.CASCADE)
-
-
-class PCCharacterCard(models.Model):
-    card_id = models.CharField(max_length=2)
-    player = models.ForeignKey(Player, on_delete=models.CASCADE)
-    build_total = models.IntegerField(default=50)
-    name = models.CharField(max_length=80)
-    skills = models.ManyToManyField(Skill, through='CharacterSkills')
-    character_classes = models.ManyToManyField(CharacterClass)
-    race = models.ForeignKey(Race, on_delete=models.CASCADE)
-
-    class Meta:
-        unique_together = ('card_id', 'player')
-
-    def __str__(self):
-        return f"{self.player.pk}-{self.card_id}"
-
-
-class CharacterSkills(models.Model):
-    character = models.ForeignKey(PCCharacterCard, on_delete=models.CASCADE)
-    skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
-    stacks = models.IntegerField(default=1)
-# </editor-fold>
-
-
-# <editor-fold desc="Expand NPC Card">
-class NPCCategory(BasicEntryMixin):
-    rp_notes = models.TextField(null=True, blank=True, help_text="Optional notes on how to roleplay this NPC")
-    skills = models.ManyToManyField(Skill, through='NPCCategorySkills')
-
-
-class NPCCategorySkills(models.Model):
-    npc_category = models.ForeignKey(NPCCategory, on_delete=models.CASCADE)
-    skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
-    alias = models.OneToOneField(SkillAlias, on_delete=models.CASCADE, related_name='npc_skill')
-
-
-class NPCCharacterCard(BasicEntryMixin):
-    skills = models.ManyToManyField(Skill)
-    rp_notes = models.TextField(null=True, blank=True, help_text="Optional notes on how to roleplay this NPC")
-    categories = models.ManyToManyField(NPCCategory, related_name='npc_cards')
-# </editor-fold>
-
-
-# <editor-fold desc="Expand Articles">
-class ArticleContent(AbstractDocument):
-    pass
-
-
-class ArticleTags(models.Model):
-    CATEGORY_CHOICES = [
-        ('D', 'Database'),
-        ('I', 'Info'),
-        ('B', 'Blog'),
-    ]
-    name = models.CharField(max_length=50, primary_key=True)
-    slug = models.SlugField(unique=True)
-    category = models.CharField(max_length=1, choices=CATEGORY_CHOICES)
-
-    prepopulated_fields = {"slug": ("name",)}
-
-
-class ArticleBase(models.Model):
-    STATUS_CHOICES = [
-        ('D', 'Draft'),
-        ('P', 'Published'),
-    ]
-
-    title = models.CharField(max_length=255)
-    slug = models.SlugField(unique=True)
-    excerpt = RichTextField(null=True, blank=True)
-    body = models.OneToOneField(ArticleContent, on_delete=models.CASCADE)
-    publish_datetime = models.DateTimeField()
-    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='D')
-    tags = models.ManyToManyField(ArticleTags)
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
-
-    prepopulated_fields = {"slug": ("title",)}
-
-    class Meta:
-        abstract = True
 
 
 class RulesChapter(models.Model):
@@ -351,12 +235,3 @@ class RulesChapter(models.Model):
 class RulesArticle(ArticleBase):
     chapter = models.ForeignKey(RulesChapter, on_delete=models.CASCADE)
     sort_order = models.IntegerField(help_text="Ascending order within chapter; same numbers will sort alphabetically.")
-# </editor-fold>
-
-
-class Comment(models.Model):
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
-    text = RichTextField()
-    date = models.DateTimeField(auto_now_add=True)
-    edit_date = models.DateTimeField(auto_now=True)
-    parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE)

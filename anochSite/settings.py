@@ -36,7 +36,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
+    'anochSite.admin_apps.MyAdminConfig',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -44,9 +44,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'polymorphic',
     'prose',
-    'admin_reorder',
     'rules_db.apps.AnochDbConfig',
-    "character_db.apps.EodraDbConfig"
+    "character_db.apps.EodraDbConfig",
+    "event_manager.apps.EventManagerConfig",
+    "core.apps.CoreConfig",
+    "ticket_system.apps.TicketSystemConfig"
 ]
 
 MIDDLEWARE = [
@@ -57,7 +59,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'admin_reorder.middleware.ModelAdminReorder',
 ]
 
 ROOT_URLCONF = 'anochSite.urls'
@@ -137,3 +138,30 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+ADMIN_REORDER = [
+    {'app': 'core', 'label': 'Core'},
+    {'app': 'rules_db', 'label': 'Rules', 'models': '__rest__'},
+    {'app': 'rules_db', 'label': 'Rules Options', 'models': ('ClassOptions', 'Effect', 'EquipmentType',
+                                                             'SkillOptions', 'Type')},
+    {'app': 'character_db', 'label': 'Characters'},
+    {'app': 'event_manager', 'label': 'Events'},
+    {'app': 'ticket_system', 'label': 'Ticket System'},
+    {'app': 'auth', 'label': 'Authorization'},
+
+    # # Keep original label and models, but change group order
+    # {'app': 'sites'},
+    #
+    # # Rename app
+    # {'app': 'auth', 'label': 'Authorisation'},
+    #
+    # # Reorder app models
+    # {'app': 'auth', 'models': ('User', 'Group')},
+    #
+    # # Exclude models
+    # {'app': 'auth', 'models': ('User', )},
+    #
+    # # Gather not included in any group models
+    # {'app': 'auth', 'models': '__rest__'},
+]
