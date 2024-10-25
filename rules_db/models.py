@@ -18,6 +18,10 @@ class Entry(PolymorphicModel, BasicEntryMixin):
     pass
 
 
+class Page(models.Model):
+    entry = models.OneToOneField(Entry, on_delete=models.CASCADE)
+
+
 # <editor-fold desc="Expand Skills">
 class Type(BasicEntryMixin):
     name = models.CharField(max_length=50, unique=True)
@@ -41,6 +45,12 @@ class Skill(Entry):
     cost = models.IntegerField(verbose_name='Build Cost')
     types = models.ManyToManyField(Type, related_name='skills')
 
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['name']
+
 
 class PeriodicSkill(Skill):
     pass
@@ -57,6 +67,9 @@ class PassiveSkill(Skill):
 
 class SkillDomain(BasicEntryMixin):
     name = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.name
 
     class Meta:
         verbose_name = 'Skill Domain'
@@ -93,12 +106,24 @@ class UniqueMechanic(Skill):
 
 
 class SkillAlias(models.Model):
-    alias_name = models.CharField(max_length=50, null=True, blank=True)
-    alias_description = models.TextField(null=True, blank=True)
-    alias_domain = models.ForeignKey(SkillDomain, on_delete=models.CASCADE, null=True, blank=True)
+    alias_name = models.CharField(max_length=50, null=True, blank=True,
+                                  help_text="The name the skill appears as on the specified class.")
+    alias_description = models.TextField(null=True, blank=True,
+                                         help_text="The flavor description specific to the class the alias belongs to.")
+    alias_domain = models.ForeignKey(SkillDomain, on_delete=models.CASCADE, null=True, blank=True,
+                                     help_text="For spells/talents etc where the domain may differ class to class.")
+    parent_skill = models.ForeignKey(Skill, on_delete=models.CASCADE, null=True, blank=True,
+                                     help_text="The baseline skill providing the mechanics.")
 
     class Meta:
         verbose_name_plural = 'Skill Aliases'
+
+    def __str__(self):
+        return self.alias_name
+
+    @property
+    def parent_class(self):
+        return self.class_skill.character_class
 
 
 class Effect(Entry):
@@ -200,16 +225,21 @@ class CharacterClass(Entry):
     class Meta:
         verbose_name = 'class'
         verbose_name_plural = 'classes'
+        ordering = ['name']
 
     def __str__(self):
         return self.name
 
 
 class ClassSkills(models.Model):
-    character_class = models.ForeignKey(CharacterClass, on_delete=models.CASCADE)
+    character_class = models.ForeignKey(CharacterClass, on_delete=models.CASCADE, verbose_name='class')
     skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
-    alias = models.OneToOneField(SkillAlias, on_delete=models.CASCADE, related_name='class_skill', blank=True, null=True)
-    prerequisites = models.ForeignKey(ClassOptions, on_delete=models.CASCADE, blank=True, null=True)
+    alias = models.OneToOneField(SkillAlias, on_delete=models.CASCADE, related_name='class_skill', blank=True,
+                                 null=True, help_text="Expanded options for the specified alias. Be sure to set "
+                                                      "the description for the specified class, and domain if needed.")
+    prerequisites = models.ForeignKey(ClassOptions, on_delete=models.CASCADE, blank=True, null=True,
+                                      help_text="Set if skill is only available with certain class options, ie casting "
+                                                "source, subclass, etc. Leave blank if available by default.")
 
     class Meta:
         verbose_name = 'skill'

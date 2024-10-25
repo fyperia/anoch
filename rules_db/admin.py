@@ -1,5 +1,6 @@
 from django.contrib import admin
-from django.contrib.admin import widgets, SimpleListFilter
+from polymorphic.admin import PolymorphicParentModelAdmin, PolymorphicChildModelAdmin
+from django.contrib.admin import widgets, SimpleListFilter, RelatedOnlyFieldListFilter
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.forms import Textarea, TextInput
 
@@ -9,23 +10,36 @@ from django.utils.text import format_lazy
 from .forms import CharacterClassForm
 from .models import (Type, SkillDomain, SkillOptions, ClassOptions, Effect,
                      Skill, PeriodicSkill, PassiveSkill, SlotSkill, ExaltedSkill, PrestigePoint, UniqueMechanic,
-                     CharacterClass, ClassSkills,
+                     CharacterClass, ClassSkills, SkillAlias,
                      EquipmentType, Component, Material, Consumable, Ritual)
 
 
 # <editor-fold desc="Inlines">
-class SkillAliasInline(admin.TabularInline):
+class AliasListInline(admin.StackedInline):
     model = ClassSkills
     can_delete = False
-    autocomplete_fields = ('skill',)
+    show_change_link = True
     extra = 0
-    formfield_overrides = {
-        models.TextField: {'widget': Textarea(attrs={'cols': 50, 'rows': 2, 'placeholder': 'Override RP text'})},
-        models.CharField: {'widget': TextInput(attrs={'placeholder': 'Override name'})},
-    }
     classes = ['collapse']
-    verbose_name = 'skill Alias'
-    verbose_name_plural = 'skill Alias List'
+
+    fields = ['character_class', 'alias', 'prerequisites']
+    readonly_fields = ('character_class',)
+    autocomplete_fields = ('prerequisites',)
+
+    verbose_name = 'alias'
+    verbose_name_plural = 'aliases'
+
+
+class ClassSkillsInline(admin.StackedInline):
+    model = ClassSkills
+    can_delete = False
+    autocomplete_fields = ('skill', 'prerequisites')
+    readonly_fields = ('character_class',)
+    extra = 0
+    classes = ['collapse']
+    verbose_name = 'alias'
+    verbose_name_plural = 'alias List'
+    show_change_link = True
 # </editor-fold>
 
 
@@ -68,6 +82,20 @@ class EffectFilter(admin.SimpleListFilter):
                 return queryset.filter(duration__exact=-1)
             else:
                 return queryset.filter(duration__exact=self.value())
+
+
+class ClassFilter(admin.SimpleListFilter):
+    title = 'class'
+    parameter_name = 'class'
+
+    def lookups(self, request, model_admin):
+        return [
+
+        ]
+
+    def queryset(self, request, queryset):
+        if self.value() is not None:
+            return queryset.filter(class__contains=self.value())
 # </editor-fold>
 
 
@@ -78,16 +106,46 @@ class ClassSkillsAdmin(admin.ModelAdmin):
     list_select_related = ('character_class', 'alias')
     search_fields = ('skill', 'alias')
     autocomplete_fields = ('skill', 'character_class')
-    fields = [('skill', 'character_class'), 'alias_name', 'alias_description']
+    fields = [('skill', 'character_class'), 'alias']
 
     def has_module_permission(self, request):
         return False
 
 
+# @admin.register(Skill)
+# class SkillAdmin(admin.ModelAdmin):
+#     list_display = ('name',)
+#     search_fields = ('name',)
+#     autocomplete_fields = ('types',)
+#     fieldsets = [
+#         (
+#             'BASIC',
+#             {
+#                 'fields': [('name', 'cost'), 'types']
+#             },
+#         ),
+#         (
+#             'RULES TEXT',
+#             {
+#                 'fields': [('description', 'mechanics')]
+#             }
+#         )
+#     ]
+#     inlines = [ClassSkillsInline]
+#     formfield_overrides = {
+#         models.TextField: {'widget': Textarea(attrs={'cols': 60, 'rows': 4})}
+#     }
 @admin.register(Skill)
-class SkillAdmin(admin.ModelAdmin):
+class SkillAdmin(PolymorphicParentModelAdmin):
+    base_model = Skill
+    child_models = (PeriodicSkill, PassiveSkill, SlotSkill, ExaltedSkill, PrestigePoint, UniqueMechanic)
     list_display = ('name',)
     search_fields = ('name',)
+
+
+@admin.register(PeriodicSkill)
+class PeriodicSkillAdmin(PolymorphicChildModelAdmin):
+    base_model = Skill
     autocomplete_fields = ('types',)
     fieldsets = [
         (
@@ -103,7 +161,31 @@ class SkillAdmin(admin.ModelAdmin):
             }
         )
     ]
-    inlines = [SkillAliasInline]
+    inlines = [AliasListInline]
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'cols': 60, 'rows': 4})}
+    }
+
+
+@admin.register(SlotSkill)
+class SlotSkillAdmin(PolymorphicChildModelAdmin):
+    base_model = Skill
+    autocomplete_fields = ('types', 'domain')
+    fieldsets = [
+        (
+            'BASIC',
+            {
+                'fields': [('name', 'rank', 'cost'), ('ability_type', 'types', 'domain')]
+            },
+        ),
+        (
+            'RULES TEXT',
+            {
+                'fields': [('description', 'mechanics')]
+            }
+        )
+    ]
+    inlines = [AliasListInline]
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'cols': 60, 'rows': 4})}
     }
@@ -113,13 +195,21 @@ class SkillAdmin(admin.ModelAdmin):
 class CharacterClassAdmin(admin.ModelAdmin):
     form = CharacterClassForm
     search_fields = ('name',)
-    inlines = [SkillAliasInline]
+    inlines = [ClassSkillsInline]
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         if db_field.name == 'skills' or 'class_options':
             return db_field.formfield(**kwargs)
         else:
             super()
+
+
+@admin.register(SkillAlias)
+class SkillAliasAdmin(admin.ModelAdmin):
+    list_display = ('alias_name', 'parent_skill', 'parent_class')
+    search_fields = ('alias_name', 'parent_skill__name', 'class_skill__character_class')
+    list_filter = ['parent_skill', ('class_skill__character_class', RelatedOnlyFieldListFilter)]
+    autocomplete_fields = ('alias_domain', 'parent_skill')
 # </editor-fold>
 
 
@@ -127,8 +217,8 @@ class CharacterClassAdmin(admin.ModelAdmin):
 @admin.register(ClassOptions)
 class ClassOptionsAdmin(admin.ModelAdmin):
     list_display = ('name', 'classes')
-    search_fields = ('name', 'character_classes__name')
-    list_filter = [ClassOptionsFilter]
+    search_fields = ('name',)
+    list_filter = [ClassOptionsFilter, 'character_classes']
 
     def classes(self, obj):
         return ', '.join([c.name for c in obj.character_classes.all()])
@@ -160,7 +250,7 @@ class EffectAdmin(admin.ModelAdmin):
     ]
 
 
-@admin.register(Type, SkillOptions)
+@admin.register(Type, SkillOptions, SkillDomain)
 class GeneralOptionAdmin(admin.ModelAdmin):
     list_display = ('name', 'description')
     search_fields = ('name',)

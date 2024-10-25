@@ -74,3 +74,4 @@ class Comment(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     edit_date = models.DateTimeField(auto_now=True)
     parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE)
+    page = models.ForeignKey('rules_db.Page', on_delete=models.CASCADE)

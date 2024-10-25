@@ -144,7 +144,7 @@ ADMIN_REORDER = [
     {'app': 'core', 'label': 'Core'},
     {'app': 'rules_db', 'label': 'Rules', 'models': '__rest__'},
     {'app': 'rules_db', 'label': 'Rules Options', 'models': ('ClassOptions', 'Effect', 'EquipmentType',
-                                                             'SkillOptions', 'Type')},
+                                                             'SkillAlias', 'SkillOptions', 'Type')},
     {'app': 'character_db', 'label': 'Characters'},
     {'app': 'event_manager', 'label': 'Events'},
     {'app': 'ticket_system', 'label': 'Ticket System'},
