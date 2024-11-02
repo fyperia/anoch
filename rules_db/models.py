@@ -62,7 +62,8 @@ class PassiveSkill(Skill):
         ('PF', 'Proficiency'),
         ('PG', 'Paragon')
     ]
-    ability_type = models.CharField(max_length=2, choices=ABILITY_TYPES)
+    ability_type = models.CharField(max_length=2, choices=ABILITY_TYPES, verbose_name='passive type',
+                                    help_text="Passives are learned only once; proficiencies stack.")
 
 
 class SkillDomain(BasicEntryMixin):
@@ -82,17 +83,24 @@ class SlotSkill(Skill):
         ('T', 'Talent'),
     ]
     rank = models.IntegerField()
-    ability_type = models.CharField(max_length=1, choices=ABILITY_TYPES)
+    ability_type = models.CharField(max_length=1, choices=ABILITY_TYPES, verbose_name='slot type')
     domain = models.ForeignKey(SkillDomain, related_name='skills', on_delete=models.CASCADE)
 
 
 class ExaltedSkill(Skill):
     CRITERIA_TYPES = [
         ('Q', 'Quest'),
-        ('A', 'Achievement'),
+        ('A', 'Achievement')
     ]
     criteria_type = models.CharField(max_length=1, choices=CRITERIA_TYPES)
-    criteria = models.TextField()
+    criteria = models.TextField(verbose_name='unlock criteria',
+                                help_text="The full text of requirements to be met before the skill can be learned.")
+    EXALTED_TYPE = [
+        ('EP', 'Passive'),
+        ('ES', 'Exalted Slot'),
+        ('EC', 'Capstone')
+    ]
+    exalted_type = models.CharField(max_length=2, choices=EXALTED_TYPE, verbose_name='exalted skill type')
 
 
 class PrestigePoint(Skill):
@@ -114,6 +122,8 @@ class SkillAlias(models.Model):
                                      help_text="For spells/talents etc where the domain may differ class to class.")
     parent_skill = models.ForeignKey(Skill, on_delete=models.CASCADE, null=True, blank=True,
                                      help_text="The baseline skill providing the mechanics.")
+    alias_criteria = models.TextField(null=True, blank=True,
+                                      help_text="For Exalted skill aliases only, to override the base criteria.")
 
     class Meta:
         verbose_name_plural = 'Skill Aliases'

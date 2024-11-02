@@ -1,5 +1,5 @@
 from django.contrib import admin
-from polymorphic.admin import PolymorphicParentModelAdmin, PolymorphicChildModelAdmin
+from polymorphic.admin import PolymorphicParentModelAdmin, PolymorphicChildModelAdmin, PolymorphicChildModelFilter
 from django.contrib.admin import widgets, SimpleListFilter, RelatedOnlyFieldListFilter
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.forms import Textarea, TextInput
@@ -112,83 +112,68 @@ class ClassSkillsAdmin(admin.ModelAdmin):
         return False
 
 
-# @admin.register(Skill)
-# class SkillAdmin(admin.ModelAdmin):
-#     list_display = ('name',)
-#     search_fields = ('name',)
-#     autocomplete_fields = ('types',)
-#     fieldsets = [
-#         (
-#             'BASIC',
-#             {
-#                 'fields': [('name', 'cost'), 'types']
-#             },
-#         ),
-#         (
-#             'RULES TEXT',
-#             {
-#                 'fields': [('description', 'mechanics')]
-#             }
-#         )
-#     ]
-#     inlines = [ClassSkillsInline]
-#     formfield_overrides = {
-#         models.TextField: {'widget': Textarea(attrs={'cols': 60, 'rows': 4})}
-#     }
 @admin.register(Skill)
 class SkillAdmin(PolymorphicParentModelAdmin):
     base_model = Skill
     child_models = (PeriodicSkill, PassiveSkill, SlotSkill, ExaltedSkill, PrestigePoint, UniqueMechanic)
     list_display = ('name',)
     search_fields = ('name',)
+    list_filter = (PolymorphicChildModelFilter,)
 
 
-@admin.register(PeriodicSkill)
-class PeriodicSkillAdmin(PolymorphicChildModelAdmin):
+@admin.register(PeriodicSkill, UniqueMechanic)
+class BasicSkillAdmin(PolymorphicChildModelAdmin):
     base_model = Skill
     autocomplete_fields = ('types',)
-    fieldsets = [
-        (
-            'BASIC',
-            {
-                'fields': [('name', 'cost'), 'types']
-            },
-        ),
-        (
-            'RULES TEXT',
-            {
-                'fields': [('description', 'mechanics')]
-            }
-        )
-    ]
-    inlines = [AliasListInline]
+    list_display = ('name',)
+    search_fields = ('name',)
+    base_fieldsets = (
+        ('INFO', {"fields": [('name', 'cost'), 'types']}),
+        ('RULES TEXT', {"fields": [('description', 'mechanics')]}),
+    )
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'cols': 60, 'rows': 4})}
     }
+    inlines = [AliasListInline]
+
+
+@admin.register(PassiveSkill)
+class PassiveSkillAdmin(BasicSkillAdmin):
+    fieldsets = (
+        *BasicSkillAdmin.base_fieldsets,
+        ('PASSIVE SKILL DATA', {"fields": ['ability_type']}),
+    )
 
 
 @admin.register(SlotSkill)
-class SlotSkillAdmin(PolymorphicChildModelAdmin):
-    base_model = Skill
-    autocomplete_fields = ('types', 'domain')
-    fieldsets = [
-        (
-            'BASIC',
-            {
-                'fields': [('name', 'rank', 'cost'), ('ability_type', 'types', 'domain')]
-            },
-        ),
-        (
-            'RULES TEXT',
-            {
-                'fields': [('description', 'mechanics')]
-            }
-        )
-    ]
-    inlines = [AliasListInline]
-    formfield_overrides = {
-        models.TextField: {'widget': Textarea(attrs={'cols': 60, 'rows': 4})}
-    }
+class SlotSkillAdmin(BasicSkillAdmin):
+    autocomplete_fields = BasicSkillAdmin.autocomplete_fields + ('domain',)
+    list_display = BasicSkillAdmin.list_display + ('ability_type', 'rank')
+    list_filter = ('ability_type', 'rank')
+    fieldsets = (
+        *BasicSkillAdmin.base_fieldsets,
+        ('SLOT SKILL DATA', {"fields": [('ability_type', 'rank'), 'domain']}),
+    )
+
+
+@admin.register(ExaltedSkill)
+class ExaltedSkillAdmin(BasicSkillAdmin):
+    list_display = BasicSkillAdmin.list_display + ('exalted_type', 'criteria_type')
+    list_filter = ('exalted_type', 'criteria_type')
+    fieldsets = (
+        *BasicSkillAdmin.base_fieldsets,
+        ('EXALTED SKILL DATA', {"fields": ['exalted_type', ('criteria', 'criteria_type')]}),
+    )
+
+
+@admin.register(PrestigePoint)
+class PrestigePointAdmin(BasicSkillAdmin):
+    autocomplete_fields = BasicSkillAdmin.autocomplete_fields + ('options',)
+    search_fields = BasicSkillAdmin.search_fields + ('name',)
+    fieldsets = (
+        *BasicSkillAdmin.base_fieldsets,
+        ('PRESTIGE POINT DATA', {"fields": ['max_purchases', 'options']}),
+    )
 
 
 @admin.register(CharacterClass)
