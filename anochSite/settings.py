@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'polymorphic',
     'prose',
+    'forms_fieldset',
     'rules_db.apps.AnochDbConfig',
     "character_db.apps.EodraDbConfig",
     "event_manager.apps.EventManagerConfig",
@@ -142,7 +143,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 ADMIN_REORDER = [
     {'app': 'core', 'label': 'Core'},
-    {'app': 'rules_db', 'label': 'Rules', 'models': '__rest__'},
+    {'app': 'rules_db', 'label': 'Rules', 'models': ('Skill', 'CharacterClass', 'SkillDomain', 'ClassSkills')},
     {'app': 'rules_db', 'label': 'Rules Options', 'models': ('ClassOptions', 'Effect', 'EquipmentType',
                                                              'SkillAlias', 'SkillOptions', 'Type')},
     {'app': 'character_db', 'label': 'Characters'},

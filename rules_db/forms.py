@@ -1,7 +1,9 @@
 from django import forms
-from django.contrib.admin.widgets import FilteredSelectMultiple
+from django.contrib.admin.widgets import FilteredSelectMultiple, RelatedFieldWidgetWrapper
 
-from .models import *
+import anochSite
+from django.contrib import admin
+from .models import CharacterClass, Skill
 
 
 class SearchBar(forms.Form):
@@ -22,8 +24,20 @@ class SearchBar(forms.Form):
 class CharacterClassForm(forms.ModelForm):
     class Meta:
         model = CharacterClass
-        fields = ['name', 'body_points', 'class_type', 'description', 'class_options_help', 'class_options', 'skills']
+        fields = '__all__'
+        site = admin.site
         widgets = {
-            'skills': FilteredSelectMultiple(verbose_name='Skills', is_stacked=False),
             'class_options': FilteredSelectMultiple(verbose_name='Class Options', is_stacked=False),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if 'instance' in kwargs:
+            self.fields['class_skills'].initial = kwargs['instance'].skills.all()
+
+    class_skills = forms.ModelMultipleChoiceField(
+        queryset=Skill.objects.all(),
+        widget=RelatedFieldWidgetWrapper(FilteredSelectMultiple("Skills", is_stacked=False),
+                                         CharacterClass._meta.get_field('skills').remote_field,
+                                         admin.site, can_add_related=True)
+    )

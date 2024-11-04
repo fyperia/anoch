@@ -28,18 +28,6 @@ class AliasListInline(admin.StackedInline):
 
     verbose_name = 'alias'
     verbose_name_plural = 'aliases'
-
-
-class ClassSkillsInline(admin.StackedInline):
-    model = ClassSkills
-    can_delete = False
-    autocomplete_fields = ('skill', 'prerequisites')
-    readonly_fields = ('character_class',)
-    extra = 0
-    classes = ['collapse']
-    verbose_name = 'alias'
-    verbose_name_plural = 'alias List'
-    show_change_link = True
 # </editor-fold>
 
 
@@ -100,18 +88,6 @@ class ClassFilter(admin.SimpleListFilter):
 
 
 # <editor-fold desc="Rules Admins">
-@admin.register(ClassSkills)
-class ClassSkillsAdmin(admin.ModelAdmin):
-    list_display = ('skill', 'character_class', 'alias')
-    list_select_related = ('character_class', 'alias')
-    search_fields = ('skill', 'alias')
-    autocomplete_fields = ('skill', 'character_class')
-    fields = [('skill', 'character_class'), 'alias']
-
-    def has_module_permission(self, request):
-        return False
-
-
 @admin.register(Skill)
 class SkillAdmin(PolymorphicParentModelAdmin):
     base_model = Skill
@@ -174,38 +150,55 @@ class PrestigePointAdmin(BasicSkillAdmin):
         *BasicSkillAdmin.base_fieldsets,
         ('PRESTIGE POINT DATA', {"fields": ['max_purchases', 'options']}),
     )
+# </editor-fold>
 
 
+# <editor-fold desc="Classes">
 @admin.register(CharacterClass)
 class CharacterClassAdmin(admin.ModelAdmin):
     form = CharacterClassForm
     search_fields = ('name',)
-    inlines = [ClassSkillsInline]
+    fieldsets = (
+        ('INFO', {"fields": [('name', 'body_points'), 'class_type', 'description']}),
+        ('CLASS OPTIONS', {"fields": ['class_options_help', 'class_options'], "classes": ['collapse']}),
+        ('SKILLS', {"fields": ['class_skills']})
+    )
 
-    def formfield_for_manytomany(self, db_field, request, **kwargs):
-        if db_field.name == 'skills' or 'class_options':
-            return db_field.formfield(**kwargs)
-        else:
-            super()
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        obj.skills.set(form.cleaned_data['class_skills'])
 
 
+@admin.register(ClassSkills)
+class ClassSkillsAdmin(admin.ModelAdmin):
+    list_display = ('skill', 'character_class', 'alias')
+    list_select_related = ('character_class', 'alias')
+    search_fields = ('skill', 'alias')
+    autocomplete_fields = ('skill', 'character_class')
+    fields = [('skill', 'character_class'), 'alias']
+
+    def has_module_permission(self, request):
+        return False
+# </editor-fold>
+
+
+# <editor-fold desc="Rules Options">
 @admin.register(SkillAlias)
 class SkillAliasAdmin(admin.ModelAdmin):
     list_display = ('alias_name', 'parent_skill', 'parent_class')
     search_fields = ('alias_name', 'parent_skill__name', 'class_skill__character_class')
     list_filter = ['parent_skill', ('class_skill__character_class', RelatedOnlyFieldListFilter)]
     autocomplete_fields = ('alias_domain', 'parent_skill')
-# </editor-fold>
 
 
-# <editor-fold desc="Rules Options">
 @admin.register(ClassOptions)
 class ClassOptionsAdmin(admin.ModelAdmin):
     list_display = ('name', 'classes')
     search_fields = ('name',)
     list_filter = [ClassOptionsFilter, 'character_classes']
 
-    def classes(self, obj):
+    @staticmethod
+    def classes(obj):
         return ', '.join([c.name for c in obj.character_classes.all()])
 
     def get_queryset(self, request):
