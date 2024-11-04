@@ -143,9 +143,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 ADMIN_REORDER = [
     {'app': 'core', 'label': 'Core'},
-    {'app': 'rules_db', 'label': 'Rules', 'models': ('Skill', 'CharacterClass', 'SkillDomain', 'ClassSkills')},
+    {'app': 'rules_db', 'label': 'Rules', 'models': ('CharacterClass', 'Component', 'GenericItem',
+                                                     'Skill',)},
     {'app': 'rules_db', 'label': 'Rules Options', 'models': ('ClassOptions', 'Effect', 'EquipmentType',
-                                                             'SkillAlias', 'SkillOptions', 'Type')},
+                                                             'SkillAlias', 'SkillDomain', 'SkillOptions', 'Type')},
     {'app': 'character_db', 'label': 'Characters'},
     {'app': 'event_manager', 'label': 'Events'},
     {'app': 'ticket_system', 'label': 'Ticket System'},

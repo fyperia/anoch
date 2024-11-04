@@ -11,7 +11,7 @@ from .forms import CharacterClassForm
 from .models import (Type, SkillDomain, SkillOptions, ClassOptions, Effect,
                      Skill, PeriodicSkill, PassiveSkill, SlotSkill, ExaltedSkill, PrestigePoint, UniqueMechanic,
                      CharacterClass, ClassSkills, SkillAlias,
-                     EquipmentType, Component, Material, Consumable, Ritual)
+                     EquipmentType, Component, Material, Consumable, Ritual, GenericItem)
 
 
 # <editor-fold desc="Inlines">
@@ -91,7 +91,7 @@ class ClassFilter(admin.SimpleListFilter):
 @admin.register(Skill)
 class SkillAdmin(PolymorphicParentModelAdmin):
     base_model = Skill
-    child_models = (PeriodicSkill, PassiveSkill, SlotSkill, ExaltedSkill, PrestigePoint, UniqueMechanic)
+    child_models = (PeriodicSkill, PassiveSkill, SlotSkill, ExaltedSkill, Ritual, PrestigePoint, UniqueMechanic)
     list_display = ('name',)
     search_fields = ('name',)
     list_filter = (PolymorphicChildModelFilter,)
@@ -136,16 +136,25 @@ class SlotSkillAdmin(BasicSkillAdmin):
 class ExaltedSkillAdmin(BasicSkillAdmin):
     list_display = BasicSkillAdmin.list_display + ('exalted_type', 'criteria_type')
     list_filter = ('exalted_type', 'criteria_type')
-    fieldsets = (
+    base_fieldsets = (
         *BasicSkillAdmin.base_fieldsets,
-        ('EXALTED SKILL DATA', {"fields": ['exalted_type', ('criteria', 'criteria_type')]}),
+        ('EXALTED SKILL DATA', {"fields": [('exalted_type', 'criteria_type'), 'criteria']}),
+    )
+
+
+@admin.register(Ritual)
+class RitualAdmin(ExaltedSkillAdmin):
+    list_display = ExaltedSkillAdmin.list_display + ('rank',)
+    list_filter = ('rank',)
+    fieldsets = (
+        *ExaltedSkillAdmin.base_fieldsets,
+        ('RITUAL DATA', {"fields": [('rank', 'duration'), 'frequency']})
     )
 
 
 @admin.register(PrestigePoint)
 class PrestigePointAdmin(BasicSkillAdmin):
     autocomplete_fields = BasicSkillAdmin.autocomplete_fields + ('options',)
-    search_fields = BasicSkillAdmin.search_fields + ('name',)
     fieldsets = (
         *BasicSkillAdmin.base_fieldsets,
         ('PRESTIGE POINT DATA', {"fields": ['max_purchases', 'options']}),
@@ -179,6 +188,51 @@ class ClassSkillsAdmin(admin.ModelAdmin):
 
     def has_module_permission(self, request):
         return False
+# </editor-fold>
+
+
+# <editor-fold desc="Crafting">
+@admin.register(Component)
+class ComponentAdmin(admin.ModelAdmin):
+    list_display = ('name', 'component_type')
+    search_fields = ('name',)
+    list_filter = ('component_type',)
+    fields = [('name', 'component_type'), 'description']
+
+
+@admin.register(GenericItem)
+class GenericItemAdmin(PolymorphicParentModelAdmin):
+    base_model = GenericItem
+    child_models = Material, Consumable
+    list_display = ('name',)
+    list_filter = (PolymorphicChildModelFilter,)
+
+
+@admin.register(Consumable)
+class ItemChildAdmin(PolymorphicChildModelAdmin):
+    base_model = GenericItem
+    autocomplete_fields = ('types',)
+    filter_horizontal = ('components',)
+    base_fieldsets = (
+        ('INFO', {"fields": ['name', 'types']}),
+        ('RULES TEXT', {"fields": [('description', 'mechanics')]}),
+    )
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'cols': 60, 'rows': 4})},
+    }
+
+
+@admin.register(Material)
+class MaterialAdmin(PolymorphicChildModelAdmin):
+    base_model = Material
+    autocomplete_fields = ('allowed_equipment', 'types')
+    fieldsets = (
+        *ItemChildAdmin.base_fieldsets,
+        ('MATERIAL DATA', {"fields": [('allowed_equipment',)]}),
+    )
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'cols': 60, 'rows': 4})}
+    }
 # </editor-fold>
 
 

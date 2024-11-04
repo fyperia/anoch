@@ -159,7 +159,8 @@ class Component(Entry):
 
 class CraftableMixin(models.Model):
     components = models.ManyToManyField(Component)
-    time = models.IntegerField(help_text="Standard activation time in minutes.")
+    time = models.DurationField(help_text="Standard time to cast/craft, in minutes/seconds.",
+                                verbose_name="crafting time")
 
     class Meta:
         abstract = True
@@ -168,8 +169,13 @@ class CraftableMixin(models.Model):
 class GenericItem(Entry):
     mechanics = models.TextField(help_text="The specific rules mechanics of the item.")
 
+    def __str__(self):
+        return self.name
+
     class Meta:
-        abstract = True
+        ordering = ['name']
+        verbose_name = "Item"
+        verbose_name_plural = "Items"
 
 
 class EquipmentType(Type):
@@ -188,7 +194,8 @@ class EquipmentType(Type):
 
 class Material(GenericItem):
     # Equipment materials with specific mechanics, ie granting a damage type or a periodic effect
-    allowed_equipment = models.ManyToManyField(Type, related_name='materials_allowed')
+    allowed_equipment = models.ManyToManyField(Type, related_name='materials_allowed',
+                                               help_text="Which types of equipment the material can be used to craft.")
     types = models.ManyToManyField(Type, related_name='materials_of_type')
 
 
