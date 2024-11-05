@@ -183,20 +183,26 @@ class EquipmentType(Type):
         ('HW', 'Weapon'),
         ('HS', 'Secondary'),
         ('AC', 'Accessory'),
-        ('AR', 'Armor'),
+        ('AS', 'Armor (Slot)'),
+        ('AW', 'Armor (Weight)')
     ]
     category = models.CharField(max_length=2, choices=CATEGORY_CHOICES)
+
+    def __str__(self):
+        return self.name
 
     class Meta:
         verbose_name = "Equipment Type"
         verbose_name_plural = "Equipment Types"
+        ordering = ['name']
 
 
 class Material(GenericItem):
     # Equipment materials with specific mechanics, ie granting a damage type or a periodic effect
-    allowed_equipment = models.ManyToManyField(Type, related_name='materials_allowed',
+    allowed_equipment = models.ManyToManyField(EquipmentType, related_name='materials_allowed',
                                                help_text="Which types of equipment the material can be used to craft.")
-    types = models.ManyToManyField(Type, related_name='materials_of_type')
+    material_skill = models.ForeignKey(Skill, on_delete=models.CASCADE, null=True, blank=True,
+                                       help_text="The skill granted by the item, if any.", verbose_name="skill")
 
 
 class Consumable(GenericItem, CraftableMixin):

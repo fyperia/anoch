@@ -31,8 +31,14 @@ class CharacterClassForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        # Allows the edit view to display the skills currently attached to the class
+        #   in the selection box after saving.
         super().__init__(*args, **kwargs)
-        if 'instance' in kwargs:
+        if 'instance' in kwargs and kwargs['instance']:
+            try:
+                CharacterClass.objects.get(pk=kwargs['instance'].pk)
+            except CharacterClass.DoesNotExist:
+                return
             self.fields['class_skills'].initial = kwargs['instance'].skills.all()
 
     class_skills = forms.ModelMultipleChoiceField(

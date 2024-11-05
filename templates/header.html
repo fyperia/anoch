@@ -1,3 +1,62 @@
+{% load static %}
+<head>
+    <style>
+
+        .header {
+            padding: 50px 50px 5px;
+            background: #ebc21c;
+            color: white;
+            font-size: 12px;
+        }
+
+        .logo {
+            height: 100px;
+        }
+
+        .topnav {
+            background: #ebc21c;
+            width: 100%;
+            float: left;
+        }
+
+        .topnav ul {
+            position: sticky;
+            top: 0;
+            width: 100%;
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .topnav li {
+            float: left;
+        }
+
+        .topnav li a {
+            background-color: #ebc21c;
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 24px;
+            text-decoration: none;
+        }
+
+        .topnav li a:hover {
+            background-color: darkred;
+        }
+    </style>
+</head>
 <div class = "header">
-    <p><a href="{%  url 'db:index' %}">Home</a></p>
+    <a href="{%  url 'site:index' %}">
+        <img class="logo" src="{% static 'images/knightrealms-text-whiteshadow.png' %}" alt="Knight Realms Logo">
+    </a>
 </div>
+<nav class ="topnav">
+    <ul>
+        <li><a href="{% url 'site:index' %}">Home</a></li>
+        <li><a href="{% url 'db:index' %}">Rulebook</a></li>
+        <li><a href="{% url 'site:index' %}">Home</a></li>
+        <li><a href="{% url 'site:index' %}">Home</a></li>
+        <li style="float:right"><a href="{% url 'site:index' %}">Account</a></li>
+    </ul>
+</nav>

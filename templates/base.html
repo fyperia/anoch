@@ -5,9 +5,10 @@
     <meta charset="UTF-8">
     <title>{% block title %}Knight Realms{% endblock %}</title>
     <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.png' %}" >
+    <link rel="stylesheet" href="{% static 'base.css' %}" >
 </head>
 <body>
-{% include "header.html" %}
-{% block content %}{% endblock content %}
+<header>{% include "header.html" %}</header>
+<main>{% block content %}{% endblock content %}</main>
 </body>
 </html>

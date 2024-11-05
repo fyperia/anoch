@@ -204,31 +204,39 @@ class ComponentAdmin(admin.ModelAdmin):
 class GenericItemAdmin(PolymorphicParentModelAdmin):
     base_model = GenericItem
     child_models = Material, Consumable
-    list_display = ('name',)
+    list_display = ('name', 'item_type')
     list_filter = (PolymorphicChildModelFilter,)
 
+    @staticmethod
+    def item_type(obj):
+        return obj.polymorphic_ctype.model
 
-@admin.register(Consumable)
+
 class ItemChildAdmin(PolymorphicChildModelAdmin):
     base_model = GenericItem
-    autocomplete_fields = ('types',)
-    filter_horizontal = ('components',)
     base_fieldsets = (
-        ('INFO', {"fields": ['name', 'types']}),
-        ('RULES TEXT', {"fields": [('description', 'mechanics')]}),
+        ('INFO', {"fields": ['name', ('description', 'mechanics')]}),
     )
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'cols': 60, 'rows': 4})},
     }
 
 
-@admin.register(Material)
-class MaterialAdmin(PolymorphicChildModelAdmin):
-    base_model = Material
-    autocomplete_fields = ('allowed_equipment', 'types')
+@admin.register(Consumable)
+class ConsumableAdmin(ItemChildAdmin):
+    filter_horizontal = ('components',)
     fieldsets = (
         *ItemChildAdmin.base_fieldsets,
-        ('MATERIAL DATA', {"fields": [('allowed_equipment',)]}),
+        ('CRAFTING RULES', {"fields": ['time', 'components']}),
+    )
+
+
+@admin.register(Material)
+class MaterialAdmin(ItemChildAdmin):
+    autocomplete_fields = ('allowed_equipment', 'material_skill')
+    fieldsets = (
+        *ItemChildAdmin.base_fieldsets,
+        ('MATERIAL DATA', {"fields": [('material_skill', 'allowed_equipment')]}),
     )
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'cols': 60, 'rows': 4})}
