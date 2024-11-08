@@ -1,3 +1,4 @@
+/*region Base Style*/
 a:link {
     color: darkred;
 }
@@ -10,3 +11,66 @@ main {
     margin-top: 40px;
     padding-top: 5px;
 }
+
+body {
+    background: #1d1518;
+    color: #d7d1c6;
+    font-family: 'Lexend', ui-sans-serif;
+}
+/*endregion*/
+
+/*region Header Style*/
+.header {
+    padding: 10px 30px;
+    background: #c29f1b;
+    color: white;
+    font-size: 12px;
+}
+
+.logo {
+    padding-top: 30px;
+    padding-left: 40px;
+    height: 100px;
+}
+
+.secondary_logo {
+    padding-top:10px;
+    height: 130px;
+    float: right;
+    opacity: 75%;
+}
+
+.topnav {
+    background: #c29f1b;
+    width: 100%;
+    float: left;
+    font-family: 'Lexend', ui-sans-serif;
+}
+
+.topnav ul {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    z-index: 1;
+}
+
+.topnav li {
+    float: left;
+}
+
+.topnav li a {
+    background-color: #c29f1b;
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 24px;
+    text-decoration: none;
+}
+
+.topnav li a:hover {
+    background-color: darkred;
+}
+/*endregion*/

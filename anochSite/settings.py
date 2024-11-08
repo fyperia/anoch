@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'polymorphic',
     'prose',
     'forms_fieldset',
+    'django_google_fonts',
     'rules_db.apps.AnochDbConfig',
     "character_db.apps.EodraDbConfig",
     "event_manager.apps.EventManagerConfig",
@@ -76,6 +77,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'utils.context_processors.rb_table_of_contents',
             ],
         },
     },
@@ -143,6 +145,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 ADMIN_REORDER = [
     {'app': 'core', 'label': 'Core'},
+    {'app': 'rules_db', 'label': 'Rulebook', 'models': ('RulesChapter', 'RulesArticle')},
     {'app': 'rules_db', 'label': 'Rules', 'models': ('CharacterClass', 'Component', 'GenericItem',
                                                      'Skill',)},
     {'app': 'rules_db', 'label': 'Rules Options', 'models': ('ClassOptions', 'Effect', 'EquipmentType',
@@ -166,4 +169,8 @@ ADMIN_REORDER = [
     #
     # # Gather not included in any group models
     # {'app': 'auth', 'models': '__rest__'},
+]
+
+GOOGLE_FONTS = [
+    "Lexend"
 ]

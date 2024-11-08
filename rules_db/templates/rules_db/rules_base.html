@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Knight Realms: Anoch DB{% endblock %}
+
+{% block stylesheets %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'rules_db/rulebook.css' %}">
+{% endblock stylesheets %}
+
+{% block sidebar %}
+    {% include "rules_db/sidebar.html" %}
+{% endblock sidebar %}
+
+{% block contentwrapper %}
+    <div class = "entrycontent">
+        {% block content %}
+        {% endblock content %}
+    </div>
+{% endblock contentwrapper %}

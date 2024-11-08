@@ -1,6 +1,10 @@
-{% extends "base.html" %}
+{% extends "rules_db/rules_base.html" %}
 
-{% block title %}{{ class.name }} - Knight Realms: Anoch DB{% endblock %}
+{% block title %}{{ class.name }} - {{ block.super }}{% endblock %}
+
+{% block sidebar %}
+    {% include "rules_db/sidebar.html" with contents_list=RulesChapter.objects.all %}
+{% endblock sidebar %}
 
 {% block content %}
     <h1>{{ class.name }}</h1>

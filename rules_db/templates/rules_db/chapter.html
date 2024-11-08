@@ -1,0 +1,17 @@
+{% extends "rules_db/rules_base.html" %}
+
+{% block title %}{{ chapter.name }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+    <h1>Chapter {{ chapter.chapter_number }}: {{ chapter.name }}</h1>
+    <p>{{ chapter.introduction }}</p>
+
+    <h2>Contents:</h2>
+    <p>
+        <ul>
+            {% for i in contents %}
+                <li><a href="{% url 'db:classes' i.id %}">{{ i.name }}</a></li>
+            {% endfor %}
+        </ul>
+    </p>
+{% endblock content %}

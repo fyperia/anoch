@@ -11,7 +11,8 @@ from .forms import CharacterClassForm
 from .models import (Type, SkillDomain, SkillOptions, ClassOptions, Effect,
                      Skill, PeriodicSkill, PassiveSkill, SlotSkill, ExaltedSkill, PrestigePoint, UniqueMechanic,
                      CharacterClass, ClassSkills, SkillAlias,
-                     EquipmentType, Component, Material, Consumable, Ritual, GenericItem)
+                     EquipmentType, Component, Material, Consumable, Ritual, GenericItem,
+                     RulesChapter, RulesArticle)
 
 
 # <editor-fold desc="Inlines">
@@ -166,6 +167,8 @@ class PrestigePointAdmin(BasicSkillAdmin):
 @admin.register(CharacterClass)
 class CharacterClassAdmin(admin.ModelAdmin):
     form = CharacterClassForm
+    list_display = ('name', 'class_type')
+    list_filter = ('class_type', 'body_points')
     search_fields = ('name',)
     fieldsets = (
         ('INFO', {"fields": [('name', 'body_points'), 'class_type', 'description']}),
@@ -305,3 +308,19 @@ class EquipmentTypeAdmin(admin.ModelAdmin):
     list_filter = ('category',)
 # </editor-fold>
 
+
+# <editor-fold desc="Rulebook Organization">
+@admin.register(RulesChapter)
+class RulesChapterAdmin(admin.ModelAdmin):
+    list_display = ('chapter_number', 'name')
+    search_fields = ('name',)
+    autocomplete_fields = ('introduction',)
+    fields = [('chapter_number', 'name'), 'slug', 'introduction']
+
+
+@admin.register(RulesArticle)
+class RulesArticleAdmin(admin.ModelAdmin):
+    list_display = ('title', 'slug', 'chapter')
+    search_fields = ('title', 'author', 'tags')
+    autocomplete_fields = ('author', 'tags')
+# </editor-fold>

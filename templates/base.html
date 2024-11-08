@@ -1,14 +1,44 @@
-<!DOCTYPE html>
 {% load static %}
+<!DOCTYPE html>
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}Knight Realms{% endblock %}</title>
     <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.png' %}" >
-    <link rel="stylesheet" href="{% static 'base.css' %}" >
+    {% block stylesheets %}
+        <link rel="stylesheet" href="{% static 'base.css' %}" >
+    {% endblock stylesheets %}
 </head>
 <body>
-<header>{% include "header.html" %}</header>
-<main>{% block content %}{% endblock content %}</main>
+<header>
+    <div class = "header">
+        <a href="{%  url 'site:index' %}">
+            <img class="logo" src="{% static 'images/knightrealms-text-whiteshadow.png' %}" alt="Knight Realms Logo">
+        </a>
+        <img class="secondary_logo" src="{% static 'images/knightrealms-unicorn-black.png' %}" alt="Unicorn">
+    </div>
+    <nav class ="topnav">
+        <ul>
+            <li><a href="{% url 'site:index' %}">Home</a></li>
+            <li><a href="{% url 'db:index' %}">Rulebook</a></li>
+            <li><a href="{% url 'site:index' %}">Home</a></li>
+            <li><a href="{% url 'site:index' %}">Home</a></li>
+            <li style="float:right"><a href="{% url 'site:index' %}">Account</a></li>
+        </ul>
+    </nav>
+</header>
+<div id="sidebar">
+    <nav class = "sidenav">
+        {% block sidebar %}
+
+        {% endblock sidebar %}
+    </nav>
+</div>
+<main>
+    {% block contentwrapper %}
+        {% block content %}{% endblock content %}
+    {% endblock contentwrapper %}
+</main>
 </body>
 </html>

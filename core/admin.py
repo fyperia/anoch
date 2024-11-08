@@ -5,7 +5,7 @@ from django.forms import Textarea, TextInput
 from django.db import models
 from django.utils.text import format_lazy
 
-from .models import (Player, ArticleTag)
+from .models import (Player, ArticleTag, ArticleContent)
 
 
 @admin.register(Player)
@@ -24,3 +24,10 @@ class PlayerAdmin(admin.ModelAdmin):
 @admin.register(ArticleTag)
 class ArticleTagsAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'category', 'slug')
+    search_fields = ('__str__', 'category', 'slug')
+
+
+@admin.register(ArticleContent)
+class ArticleContentAdmin(admin.ModelAdmin):
+    list_display = ('__str__',)
+    search_fields = ('__str__',)

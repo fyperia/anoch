@@ -1,6 +1,6 @@
-{% extends "base.html" %}
+{% extends "rules_db/rules_base.html" %}
 
-{% block title %}{{ skill.name }} - Knight Realms: Anoch DB{% endblock %}
+{% block title %}{{ skill.name }} - {{ block.super }}{% endblock %}
 
 {% block content %}
     <h1>{{ skill.name }}</h1>

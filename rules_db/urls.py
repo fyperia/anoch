@@ -15,4 +15,6 @@ urlpatterns = [
     path("search/adv/", views.search_advanced, name="search_adv"),
     # .../db/search/results/
     path("search/", SearchResultsView.as_view(), name="search_results"),
+    # ...db/chapter/1
+    path("chapter/<int:chapter_id>", views.chapter, name="chapter"),
 ]

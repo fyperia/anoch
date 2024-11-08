@@ -1,3 +1,4 @@
+from django.apps import apps
 from django.db import models
 from polymorphic.models import PolymorphicModel
 from core.models import ArticleBase, ArticleContent
@@ -253,6 +254,10 @@ class CharacterClass(Entry):
     def __str__(self):
         return self.name
 
+    @staticmethod
+    def get_classes_of_type(class_type):
+        return CharacterClass.objects.filter(class_type=class_type)
+
 
 class ClassSkills(models.Model):
     character_class = models.ForeignKey(CharacterClass, on_delete=models.CASCADE, verbose_name='class')
@@ -283,8 +288,23 @@ class RulesChapter(models.Model):
     name = models.CharField(max_length=255, help_text="Name of chapter - do not include the chapter number.")
     introduction = models.OneToOneField(ArticleContent, on_delete=models.CASCADE,
                                         help_text="Non-mechanical introduction of the chapter.")
+    slug = models.SlugField(max_length=30, unique=True, verbose_name="URL")
+
+    prepopulated_fields = {"slug": ("name",)}
+
+    class Meta:
+        ordering = ['chapter_number']
+
+    def __str__(self):
+        return f'{self.chapter_number}. {self.name}'
 
 
 class RulesArticle(ArticleBase):
     chapter = models.ForeignKey(RulesChapter, on_delete=models.CASCADE)
     sort_order = models.IntegerField(help_text="Ascending order within chapter; same numbers will sort alphabetically.")
+
+    class Meta:
+        ordering = ['chapter__chapter_number', 'sort_order']
+
+    def __str__(self):
+        return self.title

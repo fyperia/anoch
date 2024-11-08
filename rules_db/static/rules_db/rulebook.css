@@ -1,0 +1,45 @@
+.sidenav {
+	z-index: 1;
+}
+
+.sidenav ul {
+	list-style-type: none;
+	margin: 45px 0 0;
+	padding: 5px 0 0;
+	width: 15%;
+	height: 100%;
+	position: fixed;
+	overflow: auto;
+	background-color: #662c21;
+}
+
+.sidenav li a {
+	display: block;
+	text-decoration: none;
+	color: #d7d1c6;
+	padding: 5px;
+	text-align: center;
+}
+
+.sidenav .active {
+	background-color: darkblue;
+}
+
+.sidenav li a:hover {
+	background-color: #a44a3f;
+}
+
+.sidenav .expanded li a {
+	background-color: #ba8079;
+	color: black;
+}
+
+.sidenav .expanded li a:hover {
+	background-color: #a44a3f;
+	color: #d7d1c6;
+}
+
+.entrycontent {
+	margin-left: 15%;
+	padding-left: 1%;
+}
