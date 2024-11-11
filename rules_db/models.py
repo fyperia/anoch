@@ -288,7 +288,7 @@ class RulesChapter(models.Model):
     name = models.CharField(max_length=255, help_text="Name of chapter - do not include the chapter number.")
     introduction = models.OneToOneField(ArticleContent, on_delete=models.CASCADE,
                                         help_text="Non-mechanical introduction of the chapter.")
-    slug = models.SlugField(max_length=30, unique=True, verbose_name="URL")
+    slug = models.SlugField(max_length=30, unique=True, verbose_name="URL", db_index=True)
 
     prepopulated_fields = {"slug": ("name",)}
 
@@ -298,9 +298,18 @@ class RulesChapter(models.Model):
     def __str__(self):
         return f'{self.chapter_number}. {self.name}'
 
+    def get_contents(self):
+        if self.slug == "classes":
+            contents = (list(CharacterClass.objects.filter(class_type="B")) +
+                        list(CharacterClass.objects.filter(class_type="M")) +
+                        list(CharacterClass.objects.filter(class_type="E")))
+        else:
+            contents = self.articles.all()
+        return contents
+
 
 class RulesArticle(ArticleBase):
-    chapter = models.ForeignKey(RulesChapter, on_delete=models.CASCADE)
+    chapter = models.ForeignKey(RulesChapter, on_delete=models.CASCADE, related_name='articles')
     sort_order = models.IntegerField(help_text="Ascending order within chapter; same numbers will sort alphabetically.")
 
     class Meta:

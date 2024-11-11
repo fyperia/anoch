@@ -10,7 +10,7 @@ from .forms import SearchBar
 def index(request):
     class_list = CharacterClass.objects.order_by('name')
     contents_list = RulesChapter.objects.order_by('chapter_number')
-    context = {'class_list': class_list, 'contents_list': contents_list,}
+    context = {'class_list': class_list, 'contents_list': contents_list, }
     return render(request, 'rules_db/index.html', context)
 
 
@@ -20,11 +20,9 @@ def sidenav(request):
     return render(request, 'rules_db/sidebar.html', context)
 
 
-def chapter(request, chapter_id):
-    contents_list = RulesChapter.objects.all
-    chapter = get_object_or_404(RulesChapter, pk=chapter_id)
-    contents = django.apps.apps.get_model('rules_db', chapter.category).objects.all()
-    context = {'chapter': chapter, 'contents': contents, 'contents_list': contents_list,}
+def chapter(request, slug):
+    chapter = get_object_or_404(RulesChapter, slug=slug)
+    context = {'chapter': chapter, 'contents': chapter.get_contents(), }
     return render(request, 'rules_db/chapter.html', context)
 
 
@@ -40,7 +38,7 @@ def character_class(request, class_id):
     aliases = dict(zip(sl.all(), al))
     context = {
         'class': c,
-        'skill_dict': aliases
+        'skill_dict': sl
     }
     return render(request, 'rules_db/class.html', context)
 

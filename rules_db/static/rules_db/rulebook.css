@@ -22,7 +22,7 @@
 }
 
 .sidenav .active {
-	background-color: darkblue;
+	background-color: darkred;
 }
 
 .sidenav li a:hover {
@@ -32,6 +32,10 @@
 .sidenav .expanded li a {
 	background-color: #ba8079;
 	color: black;
+}
+
+.sidenav .expanded .active {
+	background-color: #a44a3f;
 }
 
 .sidenav .expanded li a:hover {

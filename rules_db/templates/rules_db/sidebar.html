@@ -1,12 +1,13 @@
 <ul>
     {%  for c in rb_table_of_contents %}
-        {% url 'db:chapter' c.chapter_number as url %}
-        <li><a href="{{ url }}"{% if c.name in request.path %} style="background-color: aqua"{% endif %}>{{ c.name }}</a></li>
-        {% if c.chapter_number == 1 %}
+        {% url 'db:chapter' c.slug as url %}
+        <li><a {% if url in request.path %} class="active" {% endif %}href="{{ url }}">{{ c.name }}</a></li>
+        {% if url in request.path %}
             <div class="expanded">
-                {% for e in c.get_contents.objects.all %}
-                    <li><a href="{% url 'db:index' %}">test</a></li>
-                {% endfor %}
+            {% for e in c.get_contents %}
+                {% url 'db:classes' e.id as suburl %}
+                <li><a {% if suburl in request.path %}class = "active"{% endif %} href="{{ suburl }}">{{ e.name }}</a></li>
+            {% endfor %}
             </div>
         {% endif %}
     {% endfor %}

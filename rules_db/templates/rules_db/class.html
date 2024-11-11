@@ -11,17 +11,14 @@
     <p>{{ class.description }}</p>
     <p>Body points: {{ class.body_points }}</p>
         <menu>
-            {%  for key, value in skill_dict.items %}
-                <li>
-                    <a href="{% url 'db:skills' key.id %}">{{ value }}</a>
-                    <ul>
-                        <li>{{ key.description }} {{ key.mechanics }}</li>
-                        <li>Type:
-                            {% for t in key.types.all %}
-                                [{{ t }}]
-                            {% endfor %}
-                        </li>
-                    </ul>
+            {% for s in class.skills.all %}
+                <li><a href="{% url "db:skills" s.id %}">{{ s.name }}</a>
+                    <p>{{ s.description }} {{ s.mechanics }}</p>
+                    <p>
+                        {% for t in s.types.all %}
+                            [{{ t.name }}]
+                        {% endfor %}
+                    </p>
                 </li>
             {% endfor %}
         </menu>
