@@ -307,6 +307,13 @@ class RulesChapter(models.Model):
             contents = self.articles.all()
         return contents
 
+    def is_active(self, path):
+        if (self.slug == "classes") and ("skills" in path):
+            return True
+        elif self.slug in path:
+            return True
+        return False
+
 
 class RulesArticle(ArticleBase):
     chapter = models.ForeignKey(RulesChapter, on_delete=models.CASCADE, related_name='articles')

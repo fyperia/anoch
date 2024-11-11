@@ -1,8 +1,10 @@
+{% load rules_extras %}
 <ul>
     {%  for c in rb_table_of_contents %}
+        {% is_active_chapter c request.path as is_active %}
         {% url 'db:chapter' c.slug as url %}
-        <li><a {% if url in request.path %} class="active" {% endif %}href="{{ url }}">{{ c.name }}</a></li>
-        {% if url in request.path %}
+        <li><a {% if is_active %} class="active" {% endif %}href="{{ url }}">{{ c.name }}</a></li>
+        {% if is_active %}
             <div class="expanded">
             {% for e in c.get_contents %}
                 {% url 'db:classes' e.id as suburl %}
