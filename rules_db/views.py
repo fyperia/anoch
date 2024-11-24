@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404, render
 from django.views.generic import TemplateView, ListView, DetailView
 from django.db.models import Q
 
-from rules_db.models import Skill, CharacterClass, RulesChapter
+from rules_db.models import Skill, CharacterClass, RulesChapter, RulesArticle, ClassSkills
 from .forms import SearchBar
 
 
@@ -21,9 +21,16 @@ def sidenav(request):
 
 
 def chapter(request, slug):
-    chapter = get_object_or_404(RulesChapter, slug=slug)
-    context = {'chapter': chapter, 'contents': chapter.get_contents(), }
+    chap = get_object_or_404(RulesChapter, slug=slug)
+    context = {'chapter': chap, 'contents': chap.get_contents(), 'slug': slug, }
     return render(request, 'rules_db/chapter.html', context)
+
+
+def rules_article(request, chapter_slug, article_slug):
+    chap = get_object_or_404(RulesChapter, slug=chapter_slug)
+    article = get_object_or_404(RulesArticle, slug=article_slug)
+    context = {'chapter': chap, 'article': article, }
+    return render(request, 'rules_db/rules_article.html', context)
 
 
 def skill(request, skill_id):
@@ -34,11 +41,15 @@ def skill(request, skill_id):
 def character_class(request, class_id):
     c = get_object_or_404(CharacterClass, pk=class_id)
     sl = c.skills
-    al = sl.through.objects.all()
-    aliases = dict(zip(sl.all(), al))
+    alias_dict = dict()
+    for s in sl.all():
+        alias = ClassSkills.objects.get(character_class=class_id, skill=s.id).alias
+        if alias is not None:
+            alias_dict[s.id] = alias
     context = {
-        'class': c,
-        'skill_dict': sl
+        'character_class': c,
+        'alias_dict': alias_dict,
+        'skill_dicts': c.get_skills_by_category()
     }
     return render(request, 'rules_db/class.html', context)
 

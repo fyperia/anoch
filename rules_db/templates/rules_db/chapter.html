@@ -2,16 +2,33 @@
 
 {% block title %}{{ chapter.name }} - {{ block.super }}{% endblock %}
 
+{% block back %}
+    <a href="{% url "db:index" %}">Back to Rulebook Index</a>
+{% endblock back %}
 {% block content %}
     <h1>Chapter {{ chapter.chapter_number }}: {{ chapter.name }}</h1>
     <p>{{ chapter.introduction }}</p>
 
     <h2>Contents:</h2>
-    <p>
-        <ul>
-            {% for i in contents %}
-                <li><a href="{% url "db:classes" i.id %}">{{ i.name }}</a></li>
+    <div class="grid_container">
+        {% if slug == "classes" %}
+            {% for c in contents %}
+                <div class ="grid_item">
+                    <a href="{% url "db:classes" c.id %}">
+                        <h3>{{ c.name }}</h3>
+                        <p>{{ c.description }}</p>
+                    </a>
+                </div>
             {% endfor %}
-        </ul>
-    </p>
+        {% else %}
+            {% for c in contents %}
+                <div class ="grid_item">
+                    <a href="{% url "db:rules_article" slug c.slug %}">
+                        <h3>{{ c.title }}</h3>
+                        <p>{{ c.excerpt | safe }}</p>
+                    </a>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
 {% endblock content %}

@@ -6,10 +6,16 @@
         <li><a {% if is_active %} class="active" {% endif %}href="{{ url }}">{{ c.name }}</a></li>
         {% if is_active %}
             <div class="expanded">
-            {% for e in c.get_contents %}
-                {% url 'db:classes' e.id as suburl %}
-                <li><a {% if suburl in request.path %}class = "active"{% endif %} href="{{ suburl }}">{{ e.name }}</a></li>
-            {% endfor %}
+                {% for e in c.get_contents %}
+                    {% if c.slug == "classes" %}
+                        {% url 'db:classes' e.id as suburl %}
+                    {% else %}
+                        {% url 'db:rules_article' c.slug e.slug as suburl %}
+                    {% endif %}
+                    <li><a {% if suburl in request.path %}class = "active"{% endif %} href="{{ suburl }}">
+                        {% if c.slug == "classes" %}{{ e.name }}{% else %}{{ e.title }}{% endif %}
+                    </a></li>
+                {% endfor %}
             </div>
         {% endif %}
     {% endfor %}

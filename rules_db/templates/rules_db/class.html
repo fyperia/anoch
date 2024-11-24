@@ -1,25 +1,19 @@
 {% extends "rules_db/rules_base.html" %}
+{% load rules_extras %}
 
-{% block title %}{{ class.name }} - {{ block.super }}{% endblock %}
+{% block title %}{{ character_class.name }} - {{ block.super }}{% endblock %}
 
-{% block sidebar %}
-    {% include "rules_db/sidebar.html" with contents_list=RulesChapter.objects.all %}
-{% endblock sidebar %}
-
+{% block back %}
+    <a href="{% url "db:chapter" "classes" %}">Back to Classes</a>
+{% endblock back %}
 {% block content %}
-    <h1>{{ class.name }}</h1>
-    <p>{{ class.description }}</p>
-    <p>Body points: {{ class.body_points }}</p>
-        <menu>
-            {% for s in class.skills.all %}
-                <li><a href="{% url "db:skills" s.id %}">{{ s.name }}</a>
-                    <p>{{ s.description }} {{ s.mechanics }}</p>
-                    <p>
-                        {% for t in s.types.all %}
-                            [{{ t.name }}]
-                        {% endfor %}
-                    </p>
-                </li>
-            {% endfor %}
-        </menu>
+    <h1>{{ character_class.name }}</h1>
+    <p>{{ character_class.description }}</p>
+    <p>Body points: {{ character_class.body_points }}</p>
+    {% for key, val in skill_dicts.items %}
+        {% if val|length > 0 %}
+            <div class="section_label"><h3>{{ key }}</h3></div>
+            {% include "rules_db/skill_entry_grid.html" %}
+        {% endif %}
+    {% endfor %}
 {% endblock %}

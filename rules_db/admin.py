@@ -1,3 +1,4 @@
+import re
 from django.contrib import admin
 from polymorphic.admin import PolymorphicParentModelAdmin, PolymorphicChildModelAdmin, PolymorphicChildModelFilter
 from django.contrib.admin import widgets, SimpleListFilter, RelatedOnlyFieldListFilter
@@ -7,6 +8,7 @@ from django.forms import Textarea, TextInput
 from django.db import models
 from django.utils.text import format_lazy
 
+from core.models import ArticleContent
 from .forms import CharacterClassForm
 from .models import (Type, SkillDomain, SkillOptions, ClassOptions, Effect,
                      Skill, PeriodicSkill, PassiveSkill, SlotSkill, ExaltedSkill, PrestigePoint, UniqueMechanic,
@@ -29,6 +31,15 @@ class AliasListInline(admin.StackedInline):
 
     verbose_name = 'alias'
     verbose_name_plural = 'aliases'
+
+
+class ArticleContentInline(admin.StackedInline):
+    model = ArticleContent
+    can_delete = False
+    show_change_link = False
+    extra = 0
+
+
 # </editor-fold>
 
 
@@ -63,7 +74,7 @@ class EffectFilter(admin.SimpleListFilter):
             ('30', '30 sec'),
             ('60', '1 min'),
             ('300', '5 min'),
-            ]
+        ]
 
     def queryset(self, request, queryset):
         if self.value() is not None:
@@ -85,6 +96,8 @@ class ClassFilter(admin.SimpleListFilter):
     def queryset(self, request, queryset):
         if self.value() is not None:
             return queryset.filter(class__contains=self.value())
+
+
 # </editor-fold>
 
 
@@ -160,6 +173,8 @@ class PrestigePointAdmin(BasicSkillAdmin):
         *BasicSkillAdmin.base_fieldsets,
         ('PRESTIGE POINT DATA', {"fields": ['max_purchases', 'options']}),
     )
+
+
 # </editor-fold>
 
 
@@ -191,6 +206,8 @@ class ClassSkillsAdmin(admin.ModelAdmin):
 
     def has_module_permission(self, request):
         return False
+
+
 # </editor-fold>
 
 
@@ -244,6 +261,8 @@ class MaterialAdmin(ItemChildAdmin):
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'cols': 60, 'rows': 4})}
     }
+
+
 # </editor-fold>
 
 
@@ -306,6 +325,8 @@ class EquipmentTypeAdmin(admin.ModelAdmin):
     search_fields = ('name',)
     fields = [('name', 'category'), 'description']
     list_filter = ('category',)
+
+
 # </editor-fold>
 
 

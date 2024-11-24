@@ -1,5 +1,6 @@
 from django.apps import apps
 from django.db import models
+from django.db.models import Q
 from polymorphic.models import PolymorphicModel
 from core.models import ArticleBase, ArticleContent
 
@@ -245,6 +246,8 @@ class CharacterClass(Entry):
                                           help_text="A description of what the class options are for. Blank if n/a."
                                                     " Text is visible to players.",
                                           blank=True, null=True)
+    long_description = models.OneToOneField(ArticleContent, blank=True, null=True, on_delete=models.SET_NULL,
+                                            help_text="Long form description for the class page.")
 
     class Meta:
         verbose_name = 'class'
@@ -253,6 +256,22 @@ class CharacterClass(Entry):
 
     def __str__(self):
         return self.name
+
+    def get_skills_by_category(self):
+        skill_list = self.skills.all()
+        result = {
+            'Proficiencies': skill_list.filter(passiveskill__ability_type='PF').order_by('classskills__alias'),
+            'Passive Skills': skill_list.filter(passiveskill__ability_type='PS').order_by('classskills__alias'),
+            'Periodic Skills': skill_list.instance_of(PeriodicSkill).order_by('classskills__alias'),
+            'Spellbook': skill_list.filter(slotskill__ability_type='S').order_by('slotskill__rank',
+                                                                                 'classskills__alias'),
+            'Talent List': skill_list.filter(slotskill__ability_type='T').order_by('slotskill__rank',
+                                                                                   'classskills__alias'),
+            'Paragon Skills': skill_list.filter(passiveskill__ability_type='PG').order_by('classskills__alias'),
+            'Exalted Skills': skill_list.instance_of(ExaltedSkill).order_by('classskills__alias'),
+        }
+
+        return result
 
     @staticmethod
     def get_classes_of_type(class_type):

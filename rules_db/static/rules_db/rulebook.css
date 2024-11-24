@@ -43,7 +43,143 @@
 	color: #d7d1c6;
 }
 
-.entrycontent {
+.entry_content {
 	margin-left: 15%;
 	padding-left: 1%;
 }
+
+.back {
+	margin-top: 1%;
+}
+
+/*region Grids*/
+.grid_container {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+	gap: 10px;
+	margin-right: 1%;
+	margin-bottom: 10px;
+}
+
+.grid_item {
+	list-style-type: none;
+	padding-left: 0;
+}
+
+.grid_item a {
+	display: block;
+	text-decoration: none;
+	color: black;
+	padding: 5px 20px 5px 20px;
+	background-color: #d7d1c6;
+}
+
+.grid_item a:hover {
+	background-color: #ba8079;
+}
+
+.skill_entry {
+	background-color: #fcf5e5;
+	padding: 0 20px 5px 20px;
+	color: #2e2e2e;
+	display: grid;
+	grid-row: auto / span 3;
+	grid-template-rows: subgrid;
+	gap: 2px;
+}
+
+.skill_entry a {
+	color: black;
+}
+
+.skill_entry a:hover {
+	color: darkred;
+}
+
+.skill_entry .entry_title {
+	margin-bottom: 0;
+	color: #2e2e2e;
+	font-size: larger;
+	font-weight: bolder;
+	display: inline-block;
+}
+
+.skill_entry .cost {
+	display: inline-block;
+	float: right;
+}
+
+.skill_entry .domain {
+	font-size: smaller;
+	padding-top: -50%;
+}
+
+.skill_entry header {
+	padding-bottom: -50%;
+	padding-top: 2%;
+}
+
+.skill_entry footer {
+	padding-bottom: 2%;
+}
+
+.skill_entry .content {
+	padding: -50%;
+}
+/*endregion*/
+
+/*region Types and Tooltips*/
+.skill_entry .types {
+	color: dimgray;
+	position: relative;
+	display: inline-block;
+	border-bottom: 1px dotted darkgray;
+}
+
+.skill_entry .hover_text {
+	position: relative;
+	border-bottom: 1px dotted black;
+	display: inline-block;
+	color: black;
+}
+
+.tooltip {
+	visibility: hidden;
+	width: 280px;
+	background-color: #d7d1c6;
+	color: black;
+	padding: 5px;
+	border-radius: 6px;
+	text-align: center;
+
+	position: absolute;
+	z-index: 1;
+	top: 145%;
+	left: 50%;
+	margin-left: -140px;
+
+	opacity: 0;
+	transition: opacity 0.1s;
+}
+
+.tooltip::after {
+	content: "";
+	position: absolute;
+	bottom: 100%;
+	left: 50%;
+	margin-left: -5px;
+	border-width: 5px;
+	border-style: solid;
+	border-color: transparent transparent #d7d1c6 transparent;
+}
+
+.types:hover .tooltip {
+	visibility: visible;
+	opacity: 1;
+}
+
+.hover_text:hover .tooltip {
+	visibility: visible;
+	opacity: 1;
+}
+/*endregion*/

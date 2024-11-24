@@ -13,7 +13,8 @@
 {% endblock sidebar %}
 
 {% block contentwrapper %}
-    <div class = "entrycontent">
+    <div class = "entry_content">
+        <div class="back">{% block back %}{% endblock back %}</div>
         {% block content %}
         {% endblock content %}
     </div>

@@ -1,0 +1,13 @@
+{% extends "rules_db/rules_base.html" %}
+
+{% block title %}{{ article.title }} - {{ block.super }}{% endblock %}
+
+{% block back %}
+    <a href="{% url "db:chapter" chapter.slug %}">Back to {{ chapter.name }}</a>
+{% endblock back %}
+{% block content %}
+    <h1>{{ article.name }}</h1>
+    <div class="article">{{ article.body.content | safe }}</div>
+    <br>
+    <div class="tags">{% for t in article.tags.all %}[{{ t.name }}] {% endfor %}</div>
+{% endblock content %}

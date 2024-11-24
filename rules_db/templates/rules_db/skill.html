@@ -1,18 +1,28 @@
 {% extends "rules_db/rules_base.html" %}
+{% load rules_extras %}
 
 {% block title %}{{ skill.name }} - {{ block.super }}{% endblock %}
 
+{% block back %}
+    <p><a href="{% url "db:chapter" "classes" %}">Back to Classes</a></p>
+{% endblock back %}
 {% block content %}
-    <h1>{{ skill.name }}</h1>
-    <p>Build cost: {{ skill.cost }}</p>
-    <p>{{ skill.description }} {{ skill.mechanics }}</p>
-    <p>
-        Type:
-        {% for t in skill.types.all %}
-            [{{ t }}]
-        {% endfor %}
-    </p>
-        Available from:
+    <div class="grid_container">
+        <div class="skill_entry">
+            <h3>{{ skill.name }}</h3>
+            <p>{{ skill.description }} {{ skill.mechanics | replace_tooltip | safe }}</p>
+            <p>
+                {% for t in skill.types.all %}
+                    <div class="types">
+                        [{{ t.name }}]
+                        <span class="tooltip">{{ t.description }}</span>
+                    </div>
+                {% endfor %}
+            <p>Build Cost: {{ skill.cost }}</p>
+            </p>
+        </div>
+    </div>
+    <p>Available from:</p>
     <ul>
         {% for c in skill.character_classes.all %}
         <li><a href="{% url 'db:classes' c.id %}">{{ c.name }}</a></li>

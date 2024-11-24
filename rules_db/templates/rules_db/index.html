@@ -4,17 +4,6 @@
 
 <div class='entrycontent'>
     {% block content %}
-        <menu>
-            {%  for c in class_list %}
-                <li><a href="{% url 'db:classes' c.id %}">{{ c.name }}</a></li>
-            {% endfor %}
-
-            {%  for c in contents_list %}
-                <li><a href="{% url 'db:index' %}">{{ c.name }}</a></li>
-            {% endfor %}
-
-            <p>some test text</p>
-        </menu>
-
+        <p>some test text</p>
     {% endblock %}
 </div>
