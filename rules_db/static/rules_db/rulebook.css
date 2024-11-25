@@ -107,6 +107,7 @@
 .skill_entry .cost {
 	display: inline-block;
 	float: right;
+	text-align: right;
 }
 
 .skill_entry .domain {

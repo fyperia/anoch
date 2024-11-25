@@ -35,7 +35,17 @@ def rules_article(request, chapter_slug, article_slug):
 
 def skill(request, skill_id):
     s = get_object_or_404(Skill, pk=skill_id)
-    return render(request, 'rules_db/skill.html', {'skill': s})
+    class_list = s.character_classes
+    alias_dict = dict()
+    for c in class_list.all():
+        alias = ClassSkills.objects.get(character_class=c.id, skill=s.id).alias
+        if alias is not None:
+            alias_dict[c.id] = alias
+    context = {
+        'skill': s,
+        'alias_dict': alias_dict,
+    }
+    return render(request, 'rules_db/skill.html', context)
 
 
 def character_class(request, class_id):

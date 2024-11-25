@@ -13,7 +13,13 @@
     {% for key, val in skill_dicts.items %}
         {% if val|length > 0 %}
             <div class="section_label"><h3>{{ key }}</h3></div>
-            {% include "rules_db/skill_entry_grid.html" %}
+            <div class="grid_container">
+                {% for skill in val %}
+                    {% with alias_dict|get_dict_item:skill.id as alias %}
+                        {% include "rules_db/skill_entry_grid.html" %}
+                    {% endwith %}
+                {% endfor %}
+            </div>
         {% endif %}
     {% endfor %}
 {% endblock %}

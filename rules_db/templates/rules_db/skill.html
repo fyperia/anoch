@@ -8,24 +8,19 @@
 {% endblock back %}
 {% block content %}
     <div class="grid_container">
-        <div class="skill_entry">
-            <h3>{{ skill.name }}</h3>
-            <p>{{ skill.description }} {{ skill.mechanics | replace_tooltip | safe }}</p>
-            <p>
-                {% for t in skill.types.all %}
-                    <div class="types">
-                        [{{ t.name }}]
-                        <span class="tooltip">{{ t.description }}</span>
-                    </div>
-                {% endfor %}
-            <p>Build Cost: {{ skill.cost }}</p>
-            </p>
-        </div>
+        {% include "rules_db/skill_entry_grid.html" %}
     </div>
     <p>Available from:</p>
     <ul>
         {% for c in skill.character_classes.all %}
-        <li><a href="{% url 'db:classes' c.id %}">{{ c.name }}</a></li>
+            {% with alias_dict|get_dict_item:c.id as alias %}
+            <li>
+                <a href="{% url 'db:classes' c.id %}">{{ c.name }}</a>
+                {% if alias != None %}
+                    (as <strong>{{ alias }}</strong>)
+                {% endif %}
+            </li>
+            {% endwith %}
         {% endfor %}
     </ul>
 {% endblock %}

@@ -1,49 +1,43 @@
 {% load rules_extras %}
 
-<div class="grid_container">
-    {% for skill in val %}
-        <div class="skill_entry">
-            {% with alias_dict|get_dict_item:skill.id as alias %}
-                <header>
-                    <div class="entry_title"><a href="{% url "db:skills" skill.id %}">
-                        {% if not alias %}
-                            {{ skill.name }}
-                        {% else %}
-                            {{ alias }}
-                        {% endif %}
-                    </a></div>
-                    <div class="cost">{{ skill.cost }} Build</div>
-                    {% if key == 'Spellbook' or key == 'Talent List' %}
-                        <div class = "domain">
-                        {% if skill.rank > 0 %}Rank {{ skill.rank }}{% else %}
-                            {% if key == 'Spellbook' %}Cantrip{% else %}Basic{% endif %}
-                        {% endif %}
-                            {% if not alias %}
-                                {{ skill.domain }}
-                            {% else %}
-                                {{ alias.alias_domain }}
-                            {% endif %}
-                            Domain
-                        </div>
-                    {% endif %}
-                </header>
-                <article class="content">
-                    <p>{% if alias %}
-                        {{ alias.alias_description }}
-                    {% else %}
-                        {{ skill.description }}
-                    {% endif %}
-                        {{ skill.mechanics | replace_tooltip | safe }}</p>
-                </article>
-                <footer>
-                    {% for t in skill.skill.types.all %}
-                        <span class="types">
-                            [{{ t.name }}]
-                            <span class="tooltip">{{ t.description }}</span>
-                        </span>
-                    {% endfor %}
-                </footer>
-            {% endwith %}
-        </div>
-    {% endfor %}
+<div class="skill_entry">
+    <header>
+        <div class="entry_title"><a href="{% url "db:skills" skill.id %}">
+            {% if not alias %}
+                {{ skill.name }}
+            {% else %}
+                {{ alias }}
+            {% endif %}
+        </a></div>
+        <div class="cost">{{ skill.cost }} Build</div>
+        {% if skill.ability_type == 'S' or skill.ability_type == 'T' %}
+            <div class = "domain">
+                {% if skill.rank > 0 %}Rank {{ skill.rank }}{% else %}
+                    {% if skill.ability_type == 'S' %}Cantrip{% else %}Basic{% endif %}
+                {% endif %}
+                {% if not alias %}
+                    {{ skill.domain }}
+                {% else %}
+                    {{ alias.alias_domain }}
+                {% endif %}
+                Domain
+            </div>
+        {% endif %}
+    </header>
+    <article class="content">
+        <p>{% if alias %}
+            {{ alias.alias_description }}
+        {% else %}
+            {{ skill.description }}
+        {% endif %}
+            {{ skill.mechanics | replace_tooltip | safe }}</p>
+    </article>
+    <footer>
+        {% for t in skill.skill.types.all %}
+            <span class="types">
+                [{{ t.name }}]
+                <span class="tooltip">{{ t.description }}</span>
+            </span>
+        {% endfor %}
+    </footer>
 </div>
